@@ -1,0 +1,7 @@
+.vscode
+Project.Base.Repository/obj
+Project.Base.Domain/obj
+Project.Base.Enumerators/obj
+Project.Base.Repository/bin
+Project.Base.Domain/bin
+Project.Base.Enumerators/bin
