@@ -1,21 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project.Base.Repository", "Project.Base.Repository\Project.Base.Repository.csproj", "{A2511494-3E73-4631-9AB5-BDAAB6450308}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project.Base.Repository", "Project.Base.Repository\Project.Base.Repository.csproj", "{A2511494-3E73-4631-9AB5-BDAAB6450308}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project.Base.Domain", "Project.Base.Domain\Project.Base.Domain.csproj", "{2FB19FE9-1B19-4916-8420-D6D69CBBA9DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project.Base.Domain", "Project.Base.Domain\Project.Base.Domain.csproj", "{2FB19FE9-1B19-4916-8420-D6D69CBBA9DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project.Base.Enumerators", "Project.Base.Enumerators\Project.Base.Enumerators.csproj", "{620D1F65-C525-41F2-8464-C7E8A53916E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project.Base.Enumerators", "Project.Base.Enumerators\Project.Base.Enumerators.csproj", "{620D1F65-C525-41F2-8464-C7E8A53916E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Project.Base.Contracts", "Project.Base.Contracts\Project.Base.Contracts.csproj", "{7FD66E48-3E73-4D39-A0A0-40143CB2425B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7873151B-B570-4E59-BFB1-258E56A710CB}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A2511494-3E73-4631-9AB5-BDAAB6450308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -30,5 +34,15 @@ Global
 		{620D1F65-C525-41F2-8464-C7E8A53916E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{620D1F65-C525-41F2-8464-C7E8A53916E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{620D1F65-C525-41F2-8464-C7E8A53916E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FD66E48-3E73-4D39-A0A0-40143CB2425B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FD66E48-3E73-4D39-A0A0-40143CB2425B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FD66E48-3E73-4D39-A0A0-40143CB2425B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FD66E48-3E73-4D39-A0A0-40143CB2425B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE0853B1-A9E8-4F5F-8BF7-E09EDDB15ED0}
 	EndGlobalSection
 EndGlobal

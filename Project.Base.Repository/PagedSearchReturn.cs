@@ -1,16 +1,9 @@
-using Project.Base.Domain.Object;
-
 namespace Project.Base.Repository;
 
-public class PagedSearchReturn<TObject> where TObject : BaseObjectWithId
+public class PagedSearchReturn<TObject>
 
 {
-    public PagedSearchReturn()
-    {
-        Results = new List<TObject>();
-    }
-
-    IList<TObject> Results { get; set; }
+    public IEnumerable<TObject>? Results { get; set; }
 
     public int TotalCount { get; set; }
 
@@ -19,10 +12,4 @@ public class PagedSearchReturn<TObject> where TObject : BaseObjectWithId
     public int ActualPage { get; set; }
 
     public int PagesCount { get; set; }
-    
-    
-    
-    
-    
-    
 }
