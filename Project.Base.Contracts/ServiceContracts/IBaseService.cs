@@ -3,7 +3,7 @@ using Project.Base.Enumerators;
 
 namespace Project.Base.Contracts.ServiceContracts
 {
-    internal interface IBaseService<TDto> where TDto : DtoBase
+    public interface IBaseService<TDto> where TDto : DtoBase
     {
         DtoOutput<TDto> FindById(Guid id);
 

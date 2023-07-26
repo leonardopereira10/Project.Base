@@ -1,6 +1,6 @@
 ﻿namespace Project.Base.Contracts.Models
 {
-    internal class DtoOutput<Dto> where Dto : DtoBase
+    public class DtoOutput<Dto> where Dto : DtoBase
     {
         public DtoOutput()
         {
@@ -17,7 +17,7 @@
 
         public int PageCount => ResultSet == null ? 0 : ResultSet.Count();
 
-        public int TotalCownt { get; set; } = 0;
+        public int TotalCount { get; set; } = 0;
 
     }
 }
