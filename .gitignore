@@ -1,5 +1,6 @@
 .vscode/*
 .vs/
+*/.vs
 Project.Base/.vs
 .git/*
 Project.Base.Repository/obj
