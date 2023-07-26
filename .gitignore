@@ -259,3 +259,8 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+/.vs/ProjectEvaluation/project.base.projects.v7.bin
+/.vs/Project.Base/DesignTimeBuild/.dtbcache.v2
+/.vs/Project.Base/v17/.futdcache.v2
+/.vs/Project.Base/v17/.suo
+/.vs/ProjectEvaluation/project.base.metadata.v7.bin
