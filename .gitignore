@@ -1,6 +1,6 @@
-.vscode
-.vs
-.git
+.vscode/*
+.vs/*
+.git/*
 Project.Base.Repository/obj
 Project.Base.Domain/obj
 Project.Base.Enumerators/obj
