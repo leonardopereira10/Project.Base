@@ -1,5 +1,6 @@
 .vscode/*
-.vs/*
+.vs/
+Project.Base/.vs
 .git/*
 Project.Base.Repository/obj
 Project.Base.Domain/obj
@@ -9,3 +10,6 @@ Project.Base.Contracts/bin
 Project.Base.Repository/bin
 Project.Base.Domain/bin
 Project.Base.Enumerators/bin
+*.v2
+.vs/Project.Base/v17/.suo
+*.bin
