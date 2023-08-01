@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Project.Base.Domain.Object.Shared;
 
 namespace Project.Base.Repository.Interfaces;
 

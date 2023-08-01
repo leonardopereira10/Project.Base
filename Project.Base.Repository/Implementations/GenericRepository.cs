@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Project.Base.Domain.Object.Shared;
 using Project.Base.Enumerators;
 using Project.Base.Repository.Interfaces;
 

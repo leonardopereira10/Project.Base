@@ -10,4 +10,8 @@
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Project.Base.Contracts\Project.Base.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

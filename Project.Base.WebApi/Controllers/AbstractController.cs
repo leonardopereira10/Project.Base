@@ -15,14 +15,14 @@ namespace Project.Base.WebApi.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult<DtoOutput<TDto>> Consultar(Guid codigo)
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> Consultar(Guid codigo)
         {
-            DtoOutput<TDto> dto = _service.FindById(codigo);
+            DtoOutput<TDto> dto = await _service.FindById(codigo);
             return dto == null ? NotFound() : Ok(dto);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult<DtoOutput<TDto>> Find(
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> Find(
             [FromQuery] int page,
             [FromQuery] int limit,
             [FromQuery] EnumOrder order,
@@ -30,26 +30,26 @@ namespace Project.Base.WebApi.Controllers
             [FromQuery] string searchTerm)
         {
             DtoOutput<TDto> saida = searchTarget is null
-                ? _service.Find(page, limit, order, searchTerm)
-                : _service.Find(page, limit, order, searchTarget, searchTerm);
+                ? await _service.Find(page, limit, order, searchTerm)
+                : await _service.Find(page, limit, order, searchTarget, searchTerm);
             return saida == null || saida.TotalCount == 0 ? NoContent() : Ok(saida);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult<DtoOutput<TDto>> Insert([FromBody] TDto newObj)
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> Insert([FromBody] TDto newObj)
         {
-            DtoOutput<TDto> dto = _service.Insert(newObj);
+            DtoOutput<TDto> dto = await _service.Insert(newObj);
             return dto.Success ? CreatedAtAction("Insert", dto) : BadRequest(dto);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult<DtoOutput<TDto>> Update([FromBody] TDto newObj)
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> Update([FromBody] TDto newObj)
         {
             DtoOutput<TDto> dto;
 
             try
             {
-                dto = _service.Update(newObj);
+                dto = await _service.Update(newObj);
 
                 if (!dto.Success)
                 {
