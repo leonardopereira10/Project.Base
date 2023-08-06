@@ -8,7 +8,7 @@ using Project.Base.Repository.Interfaces;
 
 namespace Project.Base.Repository.Implementations
 {
-    public abstract class GenericRepository<TObjeto> : IGenericRepository<TObjeto> where TObjeto : class
+    public abstract class GenericRepository<TObjeto> : IGenericRepository<TObjeto> where TObjeto : BaseObjectWithId
     {
         protected readonly DbSet<TObjeto> Persistence;
         protected readonly IdentityDbContext Context;

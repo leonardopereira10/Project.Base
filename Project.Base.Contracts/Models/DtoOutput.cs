@@ -9,6 +9,8 @@
 
         public bool Success { get; set; }
 
+        public IEnumerable<ValidationFail> ValidationFails { get; set; }
+
         public IEnumerable<Dto>? ResultSet { get; set; }
 
         public int Page { get; set; } = 0;

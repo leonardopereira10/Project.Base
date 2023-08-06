@@ -3,7 +3,7 @@ using Project.Base.Domain.Object.Shared;
 
 namespace Project.Base.Repository.Interfaces;
 
-public interface IGenericRepository<TObject>
+public interface IGenericRepository<TObject> where TObject : BaseObjectWithId
 {
     TObject Insert(TObject newObject);
 

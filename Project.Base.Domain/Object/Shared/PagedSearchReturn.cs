@@ -1,9 +1,9 @@
 namespace Project.Base.Domain.Object.Shared;
 
 public class PagedSearchReturn<TObject>
-
+    where TObject : BaseObjectWithId
 {
-    public IEnumerable<TObject>? Results { get; set; }
+    public IEnumerable<TObject> Results { get; set; }
 
     public int TotalCount { get; set; }
 
