@@ -68,7 +68,7 @@ namespace Project.Base.Domain.Services
                 IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
                 return fails.Any(x => x.IsImpeditive)
-                    ? Converter().ConvertToDtoOutput(dto, fails)
+                    ? Converter().GetDtoOutput(dto, fails)
                     : Converter().ConvertToDtoOutput(_repository.Insert(obj));
             });
         }
@@ -82,7 +82,7 @@ namespace Project.Base.Domain.Services
                 IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
                 return fails.Any(x => x.IsImpeditive)
-                    ? Converter().ConvertToDtoOutput(dto, fails)
+                    ? Converter().GetDtoOutput(dto, fails)
                     : Converter().ConvertToDtoOutput(_repository.Update(obj));
             });
         }

@@ -10,7 +10,7 @@ namespace Project.Base.Domain.Object.Shared
         TObj Convert(TDto dtos);
         IEnumerable<TDto> Convert(IEnumerable<TObj> objects);
         IEnumerable<TObj> Convert(IEnumerable<TDto> dtos);
-        DtoOutput<TDto> ConvertToDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null);
+        DtoOutput<TDto> GetDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null);
         DtoOutput<TDto> ConvertToDtoOutput(IEnumerable<TDto> dtos);
         DtoOutput<TDto> ConvertToDtoOutput(TObj obj);
         DtoOutput<TDto> ConvertToDtoOutput(IEnumerable<TObj> objects);

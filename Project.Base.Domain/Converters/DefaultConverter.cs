@@ -28,8 +28,10 @@ namespace Project.Base.Domain.Converters
             return dtos.Select(Convert);
         }
 
-        public virtual DtoOutput<TDto> ConvertToDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null)
+        public virtual DtoOutput<TDto> GetDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null)
         {
+            fails ??= Array.Empty<ValidationFail>();
+
             return new DtoOutput<TDto>
             {
                 Page = 0,
