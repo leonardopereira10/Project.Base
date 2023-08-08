@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-using Project.Base.Domain.Object.Shared;
+using Project.Base.Contracts.Models;
 
-namespace Project.Base.Repository.Interfaces;
+namespace Project.Base.Contracts.Repositories;
 
-public interface IGenericRepository<TObject> where TObject : BaseObjectWithId
+public interface IGenericRepository<TObject>
 {
     TObject Insert(TObject newObject);
 

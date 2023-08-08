@@ -6,6 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Project.Base.Contracts\Project.Base.Contracts.csproj" />
     <ProjectReference Include="..\Project.Base.Domain\Project.Base.Domain.csproj" />
     <ProjectReference Include="..\Project.Base.Enumerators\Project.Base.Enumerators.csproj" />
   </ItemGroup>
@@ -13,7 +14,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
 </Project>

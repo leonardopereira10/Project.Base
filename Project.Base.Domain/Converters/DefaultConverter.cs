@@ -4,7 +4,7 @@ using Project.Base.Domain.Object.Shared;
 
 namespace Project.Base.Domain.Converters
 {
-    public abstract class DefaultConverter<TObj, TDto>
+    public abstract class DefaultConverter<TObj, TDto> : IDefaultConverter<TObj, TDto>
         where TObj : BaseObjectWithId
         where TDto : DtoBase
     {
@@ -28,14 +28,15 @@ namespace Project.Base.Domain.Converters
             return dtos.Select(Convert);
         }
 
-        public virtual DtoOutput<TDto> ConvertToDtoOutput(TDto dto)
+        public virtual DtoOutput<TDto> ConvertToDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null)
         {
             return new DtoOutput<TDto>
             {
                 Page = 0,
                 PageSize = 0,
-                Success = true,
+                Success = !fails.Any(x => x.IsImpeditive),
                 TotalCount = 1,
+                ValidationFails = fails,
                 ResultSet = new[] { dto }
             };
         }

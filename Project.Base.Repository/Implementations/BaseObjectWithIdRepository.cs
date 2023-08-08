@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Project.Base.Contracts.Repositories;
 using Project.Base.Domain.Object.Shared;
-using Project.Base.Repository.Interfaces;
 
 namespace Project.Base.Repository.Implementations
 {

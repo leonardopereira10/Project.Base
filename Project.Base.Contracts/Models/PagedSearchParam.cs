@@ -1,6 +1,6 @@
 using Project.Base.Enumerators;
 
-namespace Project.Base.Domain.Object.Shared;
+namespace Project.Base.Contracts.Models;
 
 public class PagedSearchParam
 {

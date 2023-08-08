@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Project.Base.Contracts.Models;
+using Project.Base.Contracts.Repositories;
 using Project.Base.Domain.Object.Shared;
 using Project.Base.Enumerators;
-using Project.Base.Repository.Interfaces;
 
 namespace Project.Base.Repository.Implementations
 {
@@ -66,6 +67,7 @@ namespace Project.Base.Repository.Implementations
                     ActualPage = page,
                     Results = persistence,
                     ReturnedInActualPage = persistence.Count(),
+                    Limit = searchParams.Limit,
                     TotalCount = Persistence.Count(),
                     PagesCount = (int)Math.Round(Persistence.Count() / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity),
                 };
@@ -101,6 +103,7 @@ namespace Project.Base.Repository.Implementations
             {
                 ActualPage = searchParams.Page,
                 Results = query,
+                Limit = searchParams.Limit,
                 ReturnedInActualPage = query.Count(),
                 TotalCount = Persistence.Count(),
                 PagesCount = (int)Math.Round(Persistence.Count() / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity),
@@ -112,7 +115,7 @@ namespace Project.Base.Repository.Implementations
             return (Objeto) =>
             {
                 System.Reflection.PropertyInfo prop = typeof(TObjeto).GetProperties().First(prop => prop.Name.ToUpper() == searchTarget.ToUpper());
-                object? value = prop.GetValue(Objeto);
+                object value = prop.GetValue(Objeto);
                 return value is null || value.ToString().Contains(searchTerm);
             };
         }
