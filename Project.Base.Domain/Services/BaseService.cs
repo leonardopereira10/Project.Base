@@ -13,7 +13,7 @@ namespace Project.Base.Domain.Services
     {
         protected readonly IBaseObjectWithIdRepository<TObject> _repository;
 
-        public BaseService(IBaseObjectWithIdRepository<TObject> repository)
+        protected BaseService(IBaseObjectWithIdRepository<TObject> repository)
         {
             _repository = repository;
         }
