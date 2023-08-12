@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Project.Base.Contracts.Models;
 using Project.Base.Domain.Object.Shared;
+using Project.Base.Domain.Repositories;
 
 namespace Project.Base.Domain.Converters
 {

@@ -5,11 +5,11 @@ namespace Project.Base.Domain.Validators
 {
     public interface IBaseAbstractValidator<TObject>
     {
-        public void AsignInsertValidations();
+        public void AssignInsertValidations();
 
-        public void AsignUpdateValidations();
+        public void AssignUpdateValidations();
 
-        public void AsignDeleteValidations();
+        public void AssignDeleteValidations();
 
         public ValidationResult Validate(TObject obj);
 

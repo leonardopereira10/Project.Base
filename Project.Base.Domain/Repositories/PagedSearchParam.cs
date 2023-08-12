@@ -1,6 +1,6 @@
 using Project.Base.Enumerators;
 
-namespace Project.Base.Contracts.Models;
+namespace Project.Base.Domain.Repositories;
 
 public class PagedSearchParam
 {

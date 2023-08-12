@@ -1,4 +1,5 @@
 ﻿using Project.Base.Contracts.Models;
+using Project.Base.Domain.Repositories;
 
 namespace Project.Base.Domain.Object.Shared
 {

@@ -1,7 +1,7 @@
 ﻿using Project.Base.Contracts.Models;
-using Project.Base.Contracts.Repositories;
 using Project.Base.Contracts.ServiceContracts;
 using Project.Base.Domain.Object.Shared;
+using Project.Base.Domain.Repositories;
 using Project.Base.Domain.Validators;
 using Project.Base.Enumerators;
 
@@ -22,7 +22,7 @@ namespace Project.Base.Domain.Services
         {
             return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
             {
-                Validator().AsignDeleteValidations();
+                Validator().AssignDeleteValidations();
                 return Converter().ConvertToDtoOutput(_repository.Delete(id));
             });
         }
@@ -64,7 +64,7 @@ namespace Project.Base.Domain.Services
             return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
             {
                 TObject obj = Converter().Convert(dto);
-                Validator().AsignInsertValidations();
+                Validator().AssignInsertValidations();
                 IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
                 return fails.Any(x => x.IsImpeditive)
@@ -78,7 +78,7 @@ namespace Project.Base.Domain.Services
             return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
             {
                 TObject obj = Converter().Convert(dto);
-                Validator().AsignUpdateValidations();
+                Validator().AssignUpdateValidations();
                 IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
                 return fails.Any(x => x.IsImpeditive)

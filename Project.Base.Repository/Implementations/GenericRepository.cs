@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Project.Base.Contracts.Models;
-using Project.Base.Contracts.Repositories;
 using Project.Base.Domain.Object.Shared;
+using Project.Base.Domain.Repositories;
 using Project.Base.Enumerators;
 
 namespace Project.Base.Repository.Implementations
