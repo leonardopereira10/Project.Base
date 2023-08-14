@@ -27,14 +27,6 @@ namespace Project.Base.Domain.Services
             });
         }
 
-        public Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
-        {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                return GetPagedSearchOutput(_repository.List(new PagedSearchParam { Page = pageIndex, Limit = pageSize, Order = order, SearchTerm = searchTerm }));
-            });
-        }
-
         public Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTarget, string searchTerm)
         {
             return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
@@ -102,6 +94,11 @@ namespace Project.Base.Domain.Services
                 TotalCount = pagedSearchReturn.TotalCount,
                 ValidationFails = null
             };
+        }
+
+        public Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
+        {
+            throw new NotImplementedException();
         }
     }
 }

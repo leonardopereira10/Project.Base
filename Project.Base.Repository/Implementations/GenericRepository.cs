@@ -93,9 +93,9 @@ namespace Project.Base.Repository.Implementations
 
             IEnumerable<TObjeto> query = Persistence.Where(expression);
 
-            query = searchParams.Order == EnumOrder.ASCENDING
+            query = (searchParams.Order == EnumOrder.ASCENDING
                     ? query.OrderBy(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit)
-                    : query.OrderByDescending(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit);
+                    : query.OrderByDescending(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit)).ToList();
 
             return new PagedSearchReturn<TObjeto>
             {
