@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Project.Base.Domain.Object.Shared;
@@ -11,9 +10,9 @@ namespace Project.Base.Repository.Implementations
     public abstract class GenericRepository<TObjeto> : IGenericRepository<TObjeto> where TObjeto : BaseObjectWithId
     {
         protected readonly DbSet<TObjeto> Persistence;
-        protected readonly IdentityDbContext Context;
+        protected readonly DbContext Context;
 
-        protected GenericRepository(IdentityDbContext context)
+        protected GenericRepository(DbContext context)
         {
             Context = context;
             Persistence = Context.Set<TObjeto>();

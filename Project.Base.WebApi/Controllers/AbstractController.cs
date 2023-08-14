@@ -5,6 +5,7 @@ using Project.Base.Enumerators;
 
 namespace Project.Base.WebApi.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     public abstract class AbstractController<TDto> : ControllerBase where TDto : DtoBase
     {
         protected IBaseService<TDto> _service;
@@ -15,7 +16,7 @@ namespace Project.Base.WebApi.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual async Task<ActionResult<DtoOutput<TDto>>> Consultar(Guid codigo)
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> FindById(Guid codigo)
         {
             DtoOutput<TDto> dto = await _service.FindById(codigo);
             return dto == null ? NotFound() : Ok(dto);
