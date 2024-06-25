@@ -28,7 +28,13 @@ namespace Project.Base.Domain.Validators
 
         public IEnumerable<ValidationFail> GetValidationOutput(ValidationResult validations)
         {
-            return validations.Errors.Select(x => new ValidationFail { Message = x.ErrorMessage, Property = x.PropertyName, IsImpeditive = x.Severity == FluentValidation.Severity.Error });
+            return validations.Errors.Select(x => 
+                new ValidationFail 
+                {
+                    Message = x.ErrorMessage,
+                    Property = x.PropertyName,
+                    IsImpeditive = x.Severity == FluentValidation.Severity.Error 
+                });
         }
 
         private void AssignObrigatoryId()
