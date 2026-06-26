@@ -6,15 +6,33 @@
     <Nullable>enable</Nullable>
     <NeutralLanguage>en</NeutralLanguage>
     <OutputType>Library</OutputType>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Project.Base.WebApi</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Leonardo Pereira Cabral</Authors>
+    <Company>Project.Base</Company>
+    <Description>Project.Base.WebApi - Controlador base genérico e utilitários para ASP.NET Core Web APIs com Project.Base library</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/leonardopereira10/Project.Base</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/leonardopereira10/Project.Base</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet c# aspnetcore webapi controller base</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Project.Base.Contracts\Project.Base.Contracts.csproj" />
+    <ProjectReference Include="..\Project.Base.Domain\Project.Base.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,17 +7,17 @@
     <NeutralLanguage>en</NeutralLanguage>
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
-    <PackageId>Project.Base</PackageId>
+    <PackageId>Project.Base.Repository</PackageId>
     <Version>1.0.0</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
-    <Description>Project.Base - .NET boilerplate library with generic repositories, services, DTO conversion, validation, pagination, and dynamic search. Inherit base classes to create REST API applications.</Description>
+    <Description>Project.Base.Repository - Implementação genérica de repositórios com Entity Framework Core para Project.Base library</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/leonardopercavallo/Project.Base</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/leonardopercavallo/Project.Base</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/leonardopereira10/Project.Base</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/leonardopereira10/Project.Base</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>dotnet c# aspnetcore boilerplate base library repository service dto validation pagination</PackageTags>
-    <NuspecFile>Project.Base.nuspec</NuspecFile>
+    <PackageTags>dotnet c# repository entityframework efcore generic base</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,15 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Project.Base.Contracts\Project.Base.Contracts.csproj" />
     <ProjectReference Include="..\Project.Base.Domain\Project.Base.Domain.csproj" />
-    <ProjectReference Include="..\Project.Base.Enumerators\Project.Base.Enumerators.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\Project.Base.targets">
+    <None Include="..\README.md">
       <Pack>true</Pack>
-      <PackagePath>build\</PackagePath>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

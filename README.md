@@ -19,7 +19,30 @@ To start using Project.Base in your own application, you need to:
 
 ### Installation
 
-Install via NuGet package manager:
+You can install the packages individually or together depending on your needs:
+
+#### Individual Packages (Recommended for modular projects)
+Each layer is available as a separate NuGet package:
+
+```bash
+# Core enumerators and models
+dotnet add package Project.Base.Enumerators
+
+# DTOs and data contracts
+dotnet add package Project.Base.Contracts
+
+# Business logic, services, and validators
+dotnet add package Project.Base.Domain
+
+# Entity Framework repository implementations
+dotnet add package Project.Base.Repository
+
+# ASP.NET Core Web API base controller
+dotnet add package Project.Base.WebApi
+```
+
+#### All-in-one Meta-package
+Alternatively, install the complete package:
 
 ```bash
 dotnet add package Project.Base
@@ -30,6 +53,13 @@ Or via Package Manager Console:
 ```
 Install-Package Project.Base
 ```
+
+#### Dependency Graph
+- **Project.Base.Enumerators**: No dependencies
+- **Project.Base.Contracts**: Depends on `Project.Base.Enumerators`
+- **Project.Base.Domain**: Depends on `Project.Base.Contracts`, `FluentValidation`, `Mapster`
+- **Project.Base.Repository**: Depends on `Project.Base.Domain`, `Microsoft.EntityFrameworkCore`, `Microsoft.AspNetCore.Identity.EntityFrameworkCore`
+- **Project.Base.WebApi**: Depends on `Project.Base.Domain`, `Swashbuckle.AspNetCore`
 
 ### Prerequisites
 
@@ -209,6 +239,32 @@ GET /api/product/find?page=1&limit=20&order=0&searchTarget=Name&searchTerm=sampl
 | `order` | `EnumOrder` | `0` = DESCENDING, `1` = ASCENDING |
 | `searchTarget` | string? | Property name to filter on |
 | `searchTerm` | string? | Text to search for |
+
+## Automated NuGet Publishing
+
+This project uses GitHub Actions to automatically build and publish NuGet packages. The workflow is triggered when you create a new Git tag in the format `v*.*.*`.
+
+### Publishing a New Release
+
+1. **Tag the release**:
+   ```bash
+   git tag v1.0.1
+   git push origin v1.0.1
+   ```
+
+2. **Workflow automatically**:
+   - Builds the solution in Release mode
+   - Runs all unit tests
+   - Packs all 5 projects as individual NuGet packages:
+     - `Project.Base.Enumerators`
+     - `Project.Base.Contracts`
+     - `Project.Base.Domain`
+     - `Project.Base.Repository`
+     - `Project.Base.WebApi`
+   - Publishes to [NuGet.org](https://www.nuget.org)
+
+### Workflow File
+The workflow is defined in `.github/workflows/nuget-publish.yml` and uses NuGet OIDC authentication for secure publishing.
 
 ## Feedback
 

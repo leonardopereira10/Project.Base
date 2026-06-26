@@ -18,5 +18,8 @@
     <Reference Include="Project.Base.Repository">
       <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.Repository.dll</HintPath>
     </Reference>
+    <Reference Include="Project.Base.WebApi">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.WebApi.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

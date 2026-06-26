@@ -2,7 +2,7 @@ name: Publish NuGet Package
 
 on:
   push:
-    branches: [ "main" ]
+    # branches: [ "main" ]
     tags:
       - 'v*.*.*'
 
@@ -31,7 +31,12 @@ jobs:
         run: dotnet test Project.Base.sln --configuration Release --no-build --no-restore
 
       - name: Pack
-        run: dotnet pack Project.Base.Repository/Project.Base.Repository.csproj --configuration Release --no-build --output ./nupkg
+        run: |
+          dotnet pack Project.Base.Enumerators/Project.Base.Enumerators.csproj --configuration Release --no-build --output ./nupkg
+          dotnet pack Project.Base.Contracts/Project.Base.Contracts.csproj --configuration Release --no-build --output ./nupkg
+          dotnet pack Project.Base.Domain/Project.Base.Domain.csproj --configuration Release --no-build --output ./nupkg
+          dotnet pack Project.Base.Repository/Project.Base.Repository.csproj --configuration Release --no-build --output ./nupkg
+          dotnet pack Project.Base.WebApi/Project.Base.WebApi.csproj --configuration Release --no-build --output ./nupkg
         
       # Get a short-lived NuGet API key
       - name: NuGet login (OIDC → temp API key)

@@ -5,8 +5,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en</NeutralLanguage>
-    <IsPackable>false</IsPackable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Project.Base.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Leonardo Pereira Cabral</Authors>
+    <Company>Project.Base</Company>
+    <Description>Project.Base.Contracts - Contratos (DTO, modelos) base para Project.Base library</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/leonardopereira10/Project.Base</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/leonardopereira10/Project.Base</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet c# dto contracts models base</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Project.Base.Enumerators\Project.Base.Enumerators.csproj" />
