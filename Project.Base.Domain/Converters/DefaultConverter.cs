@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Mapster;
 using Project.Base.Contracts.Models;
 using Project.Base.Domain.Object.Shared;
 using Project.Base.Domain.Repositories;
@@ -29,7 +29,7 @@ namespace Project.Base.Domain.Converters
             return dtos.Select(Convert);
         }
 
-        public virtual DtoOutput<TDto> GetDtoOutput(TDto dto, IEnumerable<ValidationFail> fails = null)
+        public virtual DtoOutput<TDto> GetDtoOutput(TDto dto, IEnumerable<ValidationFail>? fails = null)
         {
             fails ??= Array.Empty<ValidationFail>();
 
@@ -99,9 +99,7 @@ namespace Project.Base.Domain.Converters
 
         protected static TOutput Copy<TInput, TOutput>(TInput input)
         {
-            JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web);
-            string outputAsText = JsonSerializer.Serialize(input, jsonOptions);
-            return JsonSerializer.Deserialize<TOutput>(outputAsText, jsonOptions);
+            return TypeAdapter.Adapt<TInput, TOutput>(input);
         }
     }
 }

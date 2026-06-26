@@ -1,0 +1,22 @@
+<Project>
+  <!--
+    Project.Base.targets
+    Adiciona referências para todos os assemblies do pacote Project.Base.
+    Consumidores herdam classes base destes assemblies para criar aplicações API REST.
+  -->
+
+  <ItemGroup>
+    <Reference Include="Project.Base.Enumerators">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.Enumerators.dll</HintPath>
+    </Reference>
+    <Reference Include="Project.Base.Contracts">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="Project.Base.Domain">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="Project.Base.Repository">
+      <HintPath>$(MSBuildThisFileDirectory)..\..\lib\net10.0\Project.Base.Repository.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

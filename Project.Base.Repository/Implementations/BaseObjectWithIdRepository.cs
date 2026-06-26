@@ -9,14 +9,32 @@ namespace Project.Base.Repository.Implementations
     {
         protected BaseObjectWithIdRepository(DbContext context) : base(context) { }
 
-        public TObject Delete(Guid objectId)
+        // ── Sync (compatibilidade) ──
+        // FIX: corrigido bug que retornava IQueryable castado como TObject (nunca executava a query)
+        public TObject? GetById(Guid objectId)
         {
-            return Delete(GetById(objectId));
+            return Persistence.FirstOrDefault(x => x.Id == objectId);
         }
 
-        public TObject GetById(Guid objectId)
+        public TObject Delete(Guid objectId)
         {
-            return (TObject)Persistence.Where(x => x.Id == objectId);
+            return Delete(GetById(objectId)!);
+        }
+
+        // ── Async ──
+        public async Task<TObject?> GetByIdAsync(Guid objectId)
+        {
+            return await Persistence.FirstOrDefaultAsync(x => x.Id == objectId).ConfigureAwait(false);
+        }
+
+        public async Task<TObject> DeleteAsync(Guid objectId)
+        {
+            TObject? obj = await GetByIdAsync(objectId).ConfigureAwait(false);
+            if (obj is null)
+            {
+                throw new InvalidOperationException($"Entity with id {objectId} not found.");
+            }
+            return await base.DeleteAsync(obj).ConfigureAwait(false);
         }
     }
 }

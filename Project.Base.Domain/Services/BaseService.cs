@@ -18,65 +18,72 @@ namespace Project.Base.Domain.Services
             _repository = repository;
         }
 
-        public Task<DtoOutput<TDto>> Delete(Guid id)
+        // ── Async real (sem Task.Factory.StartNew) ──
+        public async Task<DtoOutput<TDto>> Delete(Guid id)
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                Validator().AssignDeleteValidations();
-                return Converter().ConvertToDtoOutput(_repository.Delete(id));
-            });
+            Validator().AssignDeleteValidations();
+            var obj = await _repository.DeleteAsync(id).ConfigureAwait(false);
+            return Converter().ConvertToDtoOutput(obj);
         }
 
-        public Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTarget, string searchTerm)
+        public async Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string? searchTarget, string? searchTerm)
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
+            PagedSearchReturn<TObject> paged = _repository.List(new PagedSearchParam
             {
-                return GetPagedSearchOutput(_repository.List(new PagedSearchParam { Page = pageIndex, Limit = pageSize, Order = order, SearchTerm = searchTerm, SearchTarget = searchTarget }));
+                Page = pageIndex,
+                Limit = pageSize,
+                Order = order,
+                SearchTerm = searchTerm,
+                SearchTarget = searchTarget
             });
+            return GetPagedSearchOutput(paged);
         }
 
-        public Task<DtoOutput<TDto>> FindAll()
+        public async Task<DtoOutput<TDto>> FindAll()
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                return Converter().ConvertToDtoOutput(_repository.List());
-            });
+            var results = await _repository.ListAsync().ConfigureAwait(false);
+            return Converter().ConvertToDtoOutput(results);
         }
 
-        public Task<DtoOutput<TDto>> FindById(Guid id)
+        public async Task<DtoOutput<TDto>> FindById(Guid id)
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                return Converter().ConvertToDtoOutput(_repository.List(x => x.Id == id));
-            });
+            IEnumerable<TObject> result = await _repository.ListAsync(x => x.Id == id).ConfigureAwait(false);
+            return Converter().ConvertToDtoOutput(result);
         }
 
-        public Task<DtoOutput<TDto>> Insert(TDto dto)
+        public async Task<DtoOutput<TDto>> Insert(TDto dto)
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                TObject obj = Converter().Convert(dto);
-                Validator().AssignInsertValidations();
-                IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
+            TObject obj = Converter().Convert(dto);
+            Validator().AssignInsertValidations();
+            IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
-                return fails.Any(x => x.IsImpeditive)
-                    ? Converter().GetDtoOutput(dto, fails)
-                    : Converter().ConvertToDtoOutput(_repository.Insert(obj));
-            });
+            if (fails.Any(x => x.IsImpeditive))
+            {
+                return Converter().GetDtoOutput(dto, fails);
+            }
+
+            TObject inserted = await _repository.InsertAsync(obj).ConfigureAwait(false);
+            return Converter().ConvertToDtoOutput(inserted);
         }
 
-        public Task<DtoOutput<TDto>> Update(TDto dto)
+        public async Task<DtoOutput<TDto>> Update(TDto dto)
         {
-            return Task<DtoOutput<TDto>>.Factory.StartNew(() =>
-            {
-                TObject obj = Converter().Convert(dto);
-                Validator().AssignUpdateValidations();
-                IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
+            TObject obj = Converter().Convert(dto);
+            Validator().AssignUpdateValidations();
+            IEnumerable<ValidationFail> fails = Validator().GetValidationOutput(Validator().Validate(obj));
 
-                return fails.Any(x => x.IsImpeditive)
-                    ? Converter().GetDtoOutput(dto, fails)
-                    : Converter().ConvertToDtoOutput(_repository.Update(obj));
-            });
+            if (fails.Any(x => x.IsImpeditive))
+            {
+                return Converter().GetDtoOutput(dto, fails);
+            }
+
+            TObject updated = await _repository.UpdateAsync(obj).ConfigureAwait(false);
+            return Converter().ConvertToDtoOutput(updated);
+        }
+
+        public async Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
+        {
+            return await Find(pageIndex, pageSize, order, null, searchTerm).ConfigureAwait(false);
         }
 
         protected abstract IBaseAbstractValidator<TObject> Validator();
@@ -94,11 +101,6 @@ namespace Project.Base.Domain.Services
                 TotalCount = pagedSearchReturn.TotalCount,
                 ValidationFails = null
             };
-        }
-
-        public Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
-        {
-            throw new NotImplementedException();
         }
     }
 }

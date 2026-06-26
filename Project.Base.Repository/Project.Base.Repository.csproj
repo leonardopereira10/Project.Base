@@ -1,8 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NeutralLanguage>en</NeutralLanguage>
+    <OutputType>Library</OutputType>
+    <IsPackable>true</IsPackable>
+    <PackageId>Project.Base</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Leonardo Pereira Cabral</Authors>
+    <Company>Project.Base</Company>
+    <Description>Project.Base - .NET boilerplate library with generic repositories, services, DTO conversion, validation, pagination, and dynamic search. Inherit base classes to create REST API applications.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/leonardopercavallo/Project.Base</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/leonardopercavallo/Project.Base</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet c# aspnetcore boilerplate base library repository service dto validation pagination</PackageTags>
+    <NuspecFile>Project.Base.nuspec</NuspecFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
@@ -11,11 +31,11 @@
     <ProjectReference Include="..\Project.Base.Enumerators\Project.Base.Enumerators.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-      <NeutralLanguage>en</NeutralLanguage>
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="build\Project.Base.targets">
+      <Pack>true</Pack>
+      <PackagePath>build\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

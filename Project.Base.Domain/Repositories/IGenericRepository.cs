@@ -5,6 +5,7 @@ namespace Project.Base.Domain.Repositories;
 
 public interface IGenericRepository<TObject> where TObject : BaseObjectWithId
 {
+    // ── Sync (compatibilidade) ──
     TObject Insert(TObject newObject);
 
     IEnumerable<TObject> List();
@@ -16,4 +17,15 @@ public interface IGenericRepository<TObject> where TObject : BaseObjectWithId
     TObject Update(TObject updatedObject);
 
     TObject Delete(TObject obj);
+
+    // ── Async ──
+    Task<TObject> InsertAsync(TObject newObject);
+
+    Task<IEnumerable<TObject>> ListAsync();
+
+    Task<IEnumerable<TObject>> ListAsync(Expression<Func<TObject, bool>> predicate);
+
+    Task<TObject> UpdateAsync(TObject updatedObject);
+
+    Task<TObject> DeleteAsync(TObject obj);
 }

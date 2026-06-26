@@ -16,16 +16,16 @@ namespace Project.Base.WebApi.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual async Task<ActionResult<DtoOutput<TDto>>> FindById(Guid codigo)
+        protected virtual async Task<ActionResult<DtoOutput<TDto>>> FindById([FromQuery] Guid id)
         {
-            DtoOutput<TDto> dto = await _service.FindById(codigo);
+            DtoOutput<TDto> dto = await _service.FindById(id).ConfigureAwait(false);
             return dto == null ? NotFound() : Ok(dto);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         protected virtual async Task<ActionResult<DtoOutput<TDto>>> FindAll()
         {
-            DtoOutput<TDto> dto = await _service.FindAll();
+            DtoOutput<TDto> dto = await _service.FindAll().ConfigureAwait(false);
             return dto == null ? NotFound() : Ok(dto);
         }
 
@@ -37,14 +37,14 @@ namespace Project.Base.WebApi.Controllers
             [FromQuery] string? searchTarget,
             [FromQuery] string? searchTerm)
         {
-            DtoOutput<TDto> saida = await _service.Find(page, limit, order, searchTarget, searchTerm);
+            DtoOutput<TDto> saida = await _service.Find(page, limit, order, searchTarget, searchTerm).ConfigureAwait(false);
             return saida == null || saida.TotalCount == 0 ? NoContent() : Ok(saida);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         protected virtual async Task<ActionResult<DtoOutput<TDto>>> Insert([FromBody] TDto newObj)
         {
-            DtoOutput<TDto> dto = await _service.Insert(newObj);
+            DtoOutput<TDto> dto = await _service.Insert(newObj).ConfigureAwait(false);
             return dto.Success ? CreatedAtAction("Insert", dto) : BadRequest(dto);
         }
 
@@ -55,7 +55,7 @@ namespace Project.Base.WebApi.Controllers
 
             try
             {
-                dto = await _service.Update(newObj);
+                dto = await _service.Update(newObj).ConfigureAwait(false);
 
                 if (!dto.Success)
                 {
@@ -71,7 +71,7 @@ namespace Project.Base.WebApi.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult Delete(Guid id)
+        protected virtual ActionResult Delete([FromQuery] Guid id)
         {
             try
             {

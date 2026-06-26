@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Project.Base</id>
+    <version>1.0.0</version>
+    <authors>Leonardo Pereira Cabral</authors>
+    <description>Project.Base - .NET boilerplate library with generic repositories, services, DTO conversion, validation, pagination, and dynamic search. Inherit base classes to create REST API applications.</description>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/leonardopercavallo/Project.Base</projectUrl>
+    <repository type="git" url="https://github.com/leonardopercavallo/Project.Base" />
+    <packageTypes>
+      <packageType name="Library" />
+    </packageTypes>
+    <tags>dotnet c# aspnetcore boilerplate base library repository service dto validation pagination</tags>
+    <readme>README.md</readme>
+    <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="Microsoft.AspNetCore.Identity.EntityFrameworkCore" version="10.0.9" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore" version="10.0.9" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\README.md" target="README.md" />
+    <file src="build\Project.Base.targets" target="build" />
+    <file src="..\Project.Base.Enumerators\bin\Release\net10.0\Project.Base.Enumerators.dll" target="lib\net10.0" />
+    <file src="..\Project.Base.Contracts\bin\Release\net10.0\Project.Base.Contracts.dll" target="lib\net10.0" />
+    <file src="..\Project.Base.Domain\bin\Release\net10.0\Project.Base.Domain.dll" target="lib\net10.0" />
+    <file src="bin\Release\net10.0\Project.Base.Repository.dll" target="lib\net10.0" />
+  </files>
+</package>

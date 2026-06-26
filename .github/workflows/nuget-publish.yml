@@ -1,0 +1,35 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Project.Base.sln
+
+      - name: Build
+        run: dotnet build Project.Base.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Project.Base.sln --configuration Release --no-build --no-restore
+
+      - name: Pack
+        run: dotnet pack Project.Base.Repository/Project.Base.Repository.csproj --configuration Release --no-build --output ./nupkg
+
+      - name: Push to NuGet
+        run: |
+          mkdir -p ./nupkg
+          dotnet nuget push "./nupkg/Project.Base.*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

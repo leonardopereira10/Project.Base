@@ -4,7 +4,13 @@ namespace Project.Base.Domain.Repositories;
 
 public interface IBaseObjectWithIdRepository<TObjectWithID> : IGenericRepository<TObjectWithID> where TObjectWithID : BaseObjectWithId
 {
-    TObjectWithID GetById(Guid objectId);
+    // ── Sync (compatibilidade) ──
+    TObjectWithID? GetById(Guid objectId);
 
     TObjectWithID Delete(Guid objectId);
+
+    // ── Async ──
+    Task<TObjectWithID?> GetByIdAsync(Guid objectId);
+
+    Task<TObjectWithID> DeleteAsync(Guid objectId);
 }
