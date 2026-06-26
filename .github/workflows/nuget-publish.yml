@@ -33,5 +33,4 @@ jobs:
 
       - name: Push to NuGet
         run: |
-          mkdir -p ./nupkg
           dotnet nuget push "./nupkg/Project.Base.*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
