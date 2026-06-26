@@ -2,6 +2,7 @@ name: Publish NuGet Package
 
 on:
   push:
+    branches: [ "main" ]
     tags:
       - 'v*.*.*'
 
