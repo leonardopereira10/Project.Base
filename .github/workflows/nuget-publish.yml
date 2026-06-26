@@ -29,6 +29,7 @@ jobs:
       - name: Pack
         run: dotnet pack Project.Base.Repository/Project.Base.Repository.csproj --configuration Release --no-build --output ./nupkg
 
+
       - name: Push to NuGet
         run: |
           mkdir -p ./nupkg
