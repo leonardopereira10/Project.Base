@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: all
     environment: nuget 
     permissions:
       id-token: write
@@ -42,6 +42,5 @@ jobs:
 
       # Push the package
       - name: NuGet push
-        shell: bash
         run: dotnet nuget push "./nupkg/Project.Base.*.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
      
