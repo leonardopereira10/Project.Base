@@ -22,12 +22,6 @@ public class BaseObjectWithId : IComparable<BaseObjectWithId>
     public int CompareTo(BaseObjectWithId? other)
     {
         if (other == null) return 1;
-
-        if (Id < other.Id)
-        {
-            return 1;
-        }
-
-        return Id > other.Id ? -1 : 0;
+        return Id.CompareTo(other.Id);
     }
 }

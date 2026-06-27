@@ -7,20 +7,27 @@
     <NeutralLanguage>en</NeutralLanguage>
     <IsPackable>true</IsPackable>
     <PackageId>Project.Base.Domain</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.001</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
     <Description>Project.Base.Domain - Serviços, validadores e conversores base para Project.Base library</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/leonardopereira10/Project.Base</PackageProjectUrl>
     <RepositoryUrl>https://github.com/leonardopereira10/Project.Base</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet c# services validators converters base</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>1.0.001</AssemblyVersion>
+    <FileVersion>1.0.001</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\README.md">
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>

@@ -8,16 +8,20 @@
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
     <PackageId>Project.Base.Repository</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.001</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
     <Description>Project.Base.Repository - Implementação genérica de repositórios com Entity Framework Core para Project.Base library</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/leonardopereira10/Project.Base</PackageProjectUrl>
     <RepositoryUrl>https://github.com/leonardopereira10/Project.Base</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet c# repository entityframework efcore generic base</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <AssemblyVersion>1.0.001</AssemblyVersion>
+    <FileVersion>1.0.001</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +34,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\README.md">
       <Pack>true</Pack>
       <PackagePath>\</PackagePath>
