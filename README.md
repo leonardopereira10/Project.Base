@@ -121,7 +121,7 @@ public class ProductValidator : BaseAbstractValidator<Product>
 ### 5. Create the Repository (uses EF Core)
 
 ```csharp
-public class ProductRepository : GenericRepository<Product>
+public class ProductRepository : BaseObjectWithIdRepository<Product>
 {
     public ProductRepository(DbContext context) : base(context) { }
 
@@ -135,7 +135,7 @@ public class ProductRepository : GenericRepository<Product>
 ```csharp
 public class ProductService : BaseService<Product, ProductDto>
 {
-    public ProductService(IBaseObjectWithIdRepository<Product> repository)
+    public ProductService(IProductRepository repository)
         : base(repository) { }
 
     protected override IBaseAbstractValidator<Product> Validator()
@@ -155,6 +155,19 @@ public class ProductController : AbstractController<ProductDto>
 {
     public ProductController(IBaseService<ProductDto> service)
         : base(service) { }
+
+    // Declare the methods with 'new' to expose then
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public new async Task<ActionResult<DtoOutput<TDto>>> FindById(Guid id)
+    {
+        return base.FindById(id)
+    }
 }
 ```
 

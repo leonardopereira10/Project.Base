@@ -7,11 +7,32 @@ using Project.Base.Enumerators;
 
 namespace Project.Base.Repository.Implementations
 {
+    /// <summary>
+    /// Provides a generic Entity Framework Core implementation of <see cref="IGenericRepository{TObjeto}"/>.
+    /// It handles standard CRUD operations (both synchronous and asynchronous) on entities
+    /// inheriting from <see cref="BaseObjectWithId"/>, including pagination and dynamic
+    /// text search using expression trees.
+    /// </summary>
+    /// <typeparam name="TObjeto">
+    /// The entity type to persist. Must inherit from <see cref="BaseObjectWithId"/>.
+    /// </typeparam>
     public abstract class GenericRepository<TObjeto> : IGenericRepository<TObjeto> where TObjeto : BaseObjectWithId
     {
+        /// <summary>
+        /// The <see cref="DbSet{TEntity}"/> representing the entity set for <typeparamref name="TObjeto"/>.
+        /// Used to perform queries and changes against the database.
+        /// </summary>
         protected readonly DbSet<TObjeto> Persistence;
+
+        /// <summary>
+        /// The <see cref="DbContext"/> used to track and persist changes to the database.
+        /// </summary>
         protected readonly DbContext Context;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GenericRepository{TObjeto}"/> class.
+        /// </summary>
+        /// <param name="context">The Entity Framework Core context injected via dependency injection.</param>
         protected GenericRepository(DbContext context)
         {
             Context = context;
@@ -19,6 +40,12 @@ namespace Project.Base.Repository.Implementations
         }
 
         // ── Sync (compatibilidade) ──
+
+        /// <summary>
+        /// Marks an entity for deletion and persists the change to the database.
+        /// </summary>
+        /// <param name="obj">The entity instance to delete.</param>
+        /// <returns>The deleted entity.</returns>
         public TObjeto Delete(TObjeto obj)
         {
             EntityEntry<TObjeto> deleted = Persistence.Remove(obj);
@@ -27,6 +54,11 @@ namespace Project.Base.Repository.Implementations
             return deleted.Entity;
         }
 
+        /// <summary>
+        /// Adds a new entity to the data source and persists the change.
+        /// </summary>
+        /// <param name="newObject">The entity instance to insert.</param>
+        /// <returns>The newly added entity.</returns>
         public TObjeto Insert(TObjeto newObject)
         {
             EntityEntry<TObjeto> added = Persistence.Add(newObject);
@@ -35,16 +67,38 @@ namespace Project.Base.Repository.Implementations
             return added.Entity;
         }
 
+        /// <summary>
+        /// Returns all entities without filtering.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{TObjeto}"/> of all entities in the data source.</returns>
         public IEnumerable<TObjeto> List()
         {
             return Persistence;
         }
 
+        /// <summary>
+        /// Returns entities matching the specified predicate.
+        /// </summary>
+        /// <param name="predicate">A lambda expression used to filter entities.</param>
+        /// <returns>An <see cref="IEnumerable{TObjeto}"/> of entities matching the predicate.</returns>
         public IEnumerable<TObjeto> List(Expression<Func<TObjeto, bool>> predicate)
         {
             return Persistence.Where(predicate);
         }
 
+        /// <summary>
+        /// Returns a paginated and optionally filtered set of entities.
+        /// When <see cref="PagedSearchParam.SearchTerm"/> is provided without a <see cref="PagedSearchParam.SearchTarget"/>,
+        /// it performs a dynamic search across all string properties of the entity.
+        /// When <see cref="PagedSearchParam.SearchTarget"/> is specified, it delegates to
+        /// <see cref="ListWithSearchTermInner"/> for property-specific filtering.
+        /// </summary>
+        /// <param name="searchParams">
+        /// A <see cref="PagedSearchParam"/> containing pagination, ordering, and search parameters.
+        /// </param>
+        /// <returns>
+        /// A <see cref="PagedSearchReturn{TObjeto}"/> containing the paginated results and metadata.
+        /// </returns>
         public PagedSearchReturn<TObjeto> List(PagedSearchParam searchParams)
         {
             if (string.IsNullOrEmpty(searchParams.SearchTerm))
@@ -77,6 +131,12 @@ namespace Project.Base.Repository.Implementations
             }
         }
 
+        /// <summary>
+        /// Updates an existing entity in the data source and persists the change.
+        /// Clears the change tracker before the update to avoid conflicts.
+        /// </summary>
+        /// <param name="updatedObject">The entity instance with updated values.</param>
+        /// <returns>The updated entity.</returns>
         public TObjeto Update(TObjeto updatedObject)
         {
             Context.ChangeTracker.Clear();
@@ -87,6 +147,12 @@ namespace Project.Base.Repository.Implementations
         }
 
         // ── Async ──
+
+        /// <summary>
+        /// Asynchronously adds a new entity to the data source and persists the change.
+        /// </summary>
+        /// <param name="newObject">The entity instance to insert.</param>
+        /// <returns>A task representing the asynchronous operation, with the newly added entity.</returns>
         public async Task<TObjeto> InsertAsync(TObjeto newObject)
         {
             EntityEntry<TObjeto> added = Persistence.Add(newObject);
@@ -94,16 +160,37 @@ namespace Project.Base.Repository.Implementations
             return added.Entity;
         }
 
+        /// <summary>
+        /// Asynchronously returns all entities without filtering.
+        /// </summary>
+        /// <returns>
+        /// A task representing the asynchronous operation, with an <see cref="IEnumerable{TObjeto}"/> of all entities.
+        /// </returns>
         public async Task<IEnumerable<TObjeto>> ListAsync()
         {
             return await Persistence.ToListAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Asynchronously returns entities matching the specified predicate.
+        /// </summary>
+        /// <param name="predicate">A lambda expression used to filter entities.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation, with an <see cref="IEnumerable{TObjeto}"/> of matching entities.
+        /// </returns>
         public async Task<IEnumerable<TObjeto>> ListAsync(Expression<Func<TObjeto, bool>> predicate)
         {
             return await Persistence.Where(predicate).ToListAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Asynchronously updates an existing entity in the data source and persists the change.
+        /// Clears the change tracker before the update to avoid conflicts.
+        /// </summary>
+        /// <param name="updatedObject">The entity instance with updated values.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation, with the updated entity.
+        /// </returns>
         public async Task<TObjeto> UpdateAsync(TObjeto updatedObject)
         {
             Context.ChangeTracker.Clear();
@@ -112,6 +199,13 @@ namespace Project.Base.Repository.Implementations
             return obj.Entity;
         }
 
+        /// <summary>
+        /// Asynchronously marks an entity for deletion and persists the change.
+        /// </summary>
+        /// <param name="obj">The entity instance to delete.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation, with the deleted entity.
+        /// </returns>
         public async Task<TObjeto> DeleteAsync(TObjeto obj)
         {
             EntityEntry<TObjeto> deleted = Persistence.Remove(obj);
@@ -120,13 +214,20 @@ namespace Project.Base.Repository.Implementations
         }
 
         // ── US-16: ListWithSearchTerm com implementação base genérica ──
+
         /// <summary>
-        /// Busca paginada com termo de pesquisa. Quando <see cref="PagedSearchParam.SearchTarget"/>
-        /// é nulo ou vazio, busca dinamicamente em todas as propriedades <c>string</c> da entidade.
-        /// Quando <see cref="PagedSearchParam.SearchTarget"/> é informado, delega para
-        /// <see cref="ListWithSearchTermInner"/> (comportamento existente com reflection no campo específico).
-        /// Subclasses podem sobrescrever para lógica personalizada.
+        /// Performs a paginated search with a text term. When <see cref="PagedSearchParam.SearchTarget"/>
+        /// is null or empty, it dynamically searches across all <c>string</c> properties of the entity
+        /// using expression trees. When <see cref="PagedSearchParam.SearchTarget"/> is provided,
+        /// it delegates to <see cref="ListWithSearchTermInner"/> for property-specific filtering.
+        /// Subclasses may override this method to customize the search logic.
         /// </summary>
+        /// <param name="searchParams">
+        /// A <see cref="PagedSearchParam"/> containing pagination, ordering, and search parameters.
+        /// </param>
+        /// <returns>
+        /// A <see cref="PagedSearchReturn{TObjeto}"/> containing the paginated search results and metadata.
+        /// </returns>
         protected virtual PagedSearchReturn<TObjeto> ListWithSearchTerm(PagedSearchParam searchParams)
         {
             // Se SearchTarget foi especificado, delega para a implementação interna existente
@@ -185,6 +286,16 @@ namespace Project.Base.Repository.Implementations
             };
         }
 
+        /// <summary>
+        /// Performs a paginated search filtered by a specific target property name.
+        /// Uses reflection to dynamically access the property and search within it.
+        /// </summary>
+        /// <param name="searchParams">
+        /// A <see cref="PagedSearchParam"/> containing pagination, ordering, search target, and search term.
+        /// </param>
+        /// <returns>
+        /// A <see cref="PagedSearchReturn{TObjeto}"/> containing the paginated search results and metadata.
+        /// </returns>
         private PagedSearchReturn<TObjeto> ListWithSearchTermInner(PagedSearchParam searchParams)
         {
             Func<TObjeto, bool> expression = GetFilter(searchParams.SearchTarget!, searchParams.SearchTerm!);
@@ -206,6 +317,18 @@ namespace Project.Base.Repository.Implementations
             };
         }
 
+        /// <summary>
+        /// Builds a filter predicate that checks whether the value of a specific property
+        /// contains the given search term (case-insensitive substring match via reflection).
+        /// </summary>
+        /// <param name="searchTarget">
+        /// The name of the property to search within (e.g., "Name", "Description").
+        /// </param>
+        /// <param name="searchTerm">The text to search for within the property value.</param>
+        /// <returns>
+        /// A <see cref="Func{TObjeto,bool}"/> predicate that returns true when the property
+        /// value is null or contains the search term.
+        /// </returns>
         protected Func<TObjeto, bool> GetFilter(string searchTarget, string searchTerm)
         {
             return (Objeto) =>
