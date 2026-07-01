@@ -614,6 +614,277 @@ public class GenericRepositoryListWithSearchTermTests : IDisposable
 
     #endregion
 
+    #region Filtro com Termo de Busca sem Paginação (Page/Limit padrão)
+
+    /// <summary>
+    /// Testa que SearchTerm com Page/Limit nas defaults (0) retorna resultados filtrados.
+    /// Page=0 é normalizado para 1, Limit=0 significa "sem paginação" (retorna todos os match).
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_WithoutPaginationDefaults_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0, // default → normalizado para 1
+            Limit = 0, // default → sem paginação
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Alice",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Name.Should().Be("Alice");
+    }
+
+    /// <summary>
+    /// Testa que Page=0 e Limit=0 explícitos com SearchTerm retorna resultados filtrados.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_Page0AndLimit0_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Bob",
+            SearchTarget = "Name"
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().HaveCount(1);
+        result.Results.First().Name.Should().Be("Bob");
+    }
+
+    /// <summary>
+    /// Testa que apenas Page=0 (Limit default 0) com SearchTerm retorna resultados filtrados.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_Page0Only_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0, // default
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Charlie",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Name.Should().Be("Charlie");
+    }
+
+    /// <summary>
+    /// Testa que apenas Limit=0 (Page default 0) com SearchTerm retorna resultados filtrados.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_Limit0Only_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0, // default
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "David",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Name.Should().Be("David");
+    }
+
+    /// <summary>
+    /// Testa que SearchTarget + SearchTerm sem paginação retorna resultados filtrados.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_WithSearchTarget_WithoutPagination_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTarget = "Email",
+            SearchTerm = "eve"
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Email.Should().Contain("eve");
+    }
+
+    /// <summary>
+    /// Testa que DESCENDING + SearchTerm sem paginação retorna resultados filtrados.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_Descending_WithoutPagination_ShouldReturnFilteredResults()
+    {
+        // Arrange — reseed com dados que testam matches em "test"
+        ClearData();
+        _context.TestEntities.AddRange(
+            new TestEntity { Id = Guid.NewGuid(), Name = "TestUser", Email = "other@test.com" },
+            new TestEntity { Id = Guid.NewGuid(), Name = "Other", Email = "test@example.com" },
+            new TestEntity { Id = Guid.NewGuid(), Name = "NoMatch", Email = "nomatch@example.com" }
+        );
+        _context.SaveChanges();
+
+        var param = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.DESCENDING,
+            SearchTerm = "test",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados ordenados descendentemente
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().HaveCount(2);
+        var resultsList = result.Results.ToList();
+        resultsList[0].Id.CompareTo(resultsList[1].Id).Should().BeGreaterThan(0);
+    }
+
+    /// <summary>
+    /// Testa baseline: sem SearchTerm com Page/Limit defaults retorna TODOS os itens.
+    /// A branch sem busca normaliza Page=0→1 e Limit=0 retorna todos.
+    /// </summary>
+    [Fact]
+    public void List_WithoutSearchTerm_WithPaginationDefaults_ShouldReturnAll()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0, // default
+            Limit = 0, // default
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = null,
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — branch sem busca normaliza e retorna todos
+        result.Results.Should().HaveCount(5);
+    }
+
+    /// <summary>
+    /// Testa que Page=1 com Limit=0 retorna todos os resultados filtrados (sem paginação).
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_Page1_Limit0_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 1,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Alice",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna os resultados filtrados (sem paginação)
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Name.Should().Be("Alice");
+    }
+
+    /// <summary>
+    /// Testa que Page negativo com Limit=0 retorna resultados filtrados.
+    /// Page negativo é normalizado para 1.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_NegativePage_Limit0_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = -1,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Bob",
+            SearchTarget = null
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — Page negativo normalizado para 1, retorna resultados filtrados
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().ContainSingle().Which.Name.Should().Be("Bob");
+    }
+
+    /// <summary>
+    /// Testa consistência: SearchTerm com Page/Limit defaults retorna resultados filtrados,
+    /// e sem SearchTerm retorna TODOS. Ambos sem paginação, comportamento consistente.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_ConsistentBehaviorWithNonSearchBehavior()
+    {
+        // Arrange — mesma entidade, dois parâmetros diferentes
+        var paramWithSearch = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "Alice", // tem termo de busca
+            SearchTarget = null
+        };
+
+        var paramWithoutSearch = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = null, // sem termo de busca
+            SearchTarget = null
+        };
+
+        // Act
+        var resultWithSearch = _repository.List(paramWithSearch);
+        var resultWithoutSearch = _repository.List(paramWithoutSearch);
+
+        // Assert — consistência: ambos tratam Page=0/Limit=0 da mesma forma
+        // SearchTerm retorna filtrados, sem SearchTerm retorna todos
+        resultWithSearch.ActualPage.Should().Be(1);
+        resultWithSearch.Results.Should().ContainSingle().Which.Name.Should().Be("Alice");
+        resultWithoutSearch.ActualPage.Should().Be(1);
+        resultWithoutSearch.Results.Should().HaveCount(5);
+    }
+
+    #endregion
+
     #region Helpers
 
     private void ClearData()

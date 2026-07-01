@@ -269,21 +269,34 @@ namespace Project.Base.Repository.Implementations
                 query = Persistence.AsQueryable();
             }
 
-            // Aplica ordenação e paginação
-            query = searchParams.Order == EnumOrder.ASCENDING
-                ? query.OrderBy(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit)
-                : query.OrderByDescending(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit);
+            // Normaliza paginação (padrão sem paginação = todos os resultados)
+            int page = searchParams.Page < 1 ? 1 : searchParams.Page;
+            int limit = searchParams.Limit;
+            EnumOrder order = !Enum.IsDefined(searchParams.Order) ? EnumOrder.ASCENDING : searchParams.Order;
+
+            // Aplica ordenação
+            query = order == EnumOrder.ASCENDING
+                ? query.OrderBy(x => x)
+                : query.OrderByDescending(x => x);
+
+            // Aplica paginação apenas se Limit > 0
+            if (limit > 0)
+            {
+                query = query.Skip((page - 1) * limit).Take(limit);
+            }
 
             var results = query.ToList();
 
             return new PagedSearchReturn<TObjeto>
             {
-                ActualPage = searchParams.Page,
+                ActualPage = page,
                 Results = results,
                 Limit = searchParams.Limit,
                 ReturnedInActualPage = results.Count,
                 TotalCount = Persistence.Count(),
-                PagesCount = (int)Math.Round(Persistence.Count() / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity),
+                PagesCount = limit > 0
+                    ? (int)Math.Round(Persistence.Count() / (double)limit, MidpointRounding.ToPositiveInfinity)
+                    : 1,
             };
         }
 
@@ -299,22 +312,41 @@ namespace Project.Base.Repository.Implementations
         /// </returns>
         private PagedSearchReturn<TObjeto> ListWithSearchTermInner(PagedSearchParam searchParams)
         {
-            Func<TObjeto, bool> expression = GetFilter(searchParams.SearchTarget!, searchParams.SearchTerm!);
+            var filter = GetFilter(searchParams.SearchTarget!, searchParams.SearchTerm!);
 
-            IEnumerable<TObjeto> query = Persistence.Where(expression);
+            // Usa AsEnumerable() para suportar Func<T, bool> (reflection-based)
+            var results = Persistence.AsEnumerable().Where(filter).ToList();
 
-            query = (searchParams.Order == EnumOrder.ASCENDING
-                    ? query.OrderBy(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit)
-                    : query.OrderByDescending(x => x).Skip((searchParams.Page - 1) * searchParams.Limit).Take(searchParams.Limit)).ToList();
+            // Normaliza paginação
+            int page = searchParams.Page < 1 ? 1 : searchParams.Page;
+            int limit = searchParams.Limit;
+            EnumOrder order = !Enum.IsDefined(searchParams.Order) ? EnumOrder.ASCENDING : searchParams.Order;
+
+            // Aplica ordenação e paginação apenas se Limit > 0
+            if (limit > 0)
+            {
+                results = order == EnumOrder.ASCENDING
+                    ? results.OrderBy(x => x).Skip((page - 1) * limit).Take(limit).ToList()
+                    : results.OrderByDescending(x => x).Skip((page - 1) * limit).Take(limit).ToList();
+            }
+            else
+            {
+                // Sem paginação, apenas ordena
+                results = order == EnumOrder.ASCENDING
+                    ? results.OrderBy(x => x).ToList()
+                    : results.OrderByDescending(x => x).ToList();
+            }
 
             return new PagedSearchReturn<TObjeto>
             {
-                ActualPage = searchParams.Page,
-                Results = query,
+                ActualPage = page,
+                Results = results,
                 Limit = searchParams.Limit,
-                ReturnedInActualPage = query.Count(),
+                ReturnedInActualPage = results.Count,
                 TotalCount = Persistence.Count(),
-                PagesCount = (int)Math.Round(Persistence.Count() / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity),
+                PagesCount = limit > 0
+                    ? (int)Math.Round(Persistence.Count() / (double)limit, MidpointRounding.ToPositiveInfinity)
+                    : 1,
             };
         }
 
