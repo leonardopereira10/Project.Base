@@ -252,9 +252,10 @@ namespace Project.Base.Repository.Implementations
                 foreach (var prop in stringProperties)
                 {
                     var propAccess = Expression.Property(param, prop.Name);
-                    var method = typeof(string).GetMethod("Contains", [typeof(string)])!;
+                    var method = typeof(string).GetMethod("Contains", [typeof(string), typeof(StringComparison)])!;
                     var searchTermConst = Expression.Constant(searchParams.SearchTerm!, typeof(string));
-                    var containsCall = Expression.Call(propAccess, method, searchTermConst);
+                    var comparisonConst = Expression.Constant(StringComparison.OrdinalIgnoreCase, typeof(StringComparison));
+                    var containsCall = Expression.Call(propAccess, method, searchTermConst, comparisonConst);
 
                     combined = combined == null ? containsCall : Expression.OrElse(combined, containsCall);
                 }

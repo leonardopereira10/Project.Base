@@ -275,9 +275,7 @@ public class GenericRepositoryTests : IDisposable
         // Assert
         resultsList.Should().HaveCount(5);
         // Descending: first Id should be lexicographically greater than last Id
-        var bytesFirst = resultsList[0].Id.ToByteArray();
-        var bytesLast = resultsList[4].Id.ToByteArray();
-        bytesFirst.AsSpan().SequenceCompareTo(bytesLast).Should().BeGreaterThan(0);
+        resultsList[0].Id.CompareTo(resultsList[4].Id).Should().BeGreaterThan(0);
     }
 
     [Fact]
