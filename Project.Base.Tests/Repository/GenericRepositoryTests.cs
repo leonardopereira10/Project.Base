@@ -150,6 +150,22 @@ public class GenericRepositoryTests : IDisposable
         (await _context.TestEntities.CountAsync()).Should().Be(initialCount - 1);
     }
 
+    [Fact]
+    public void Delete_WithNull_ShouldThrow()
+    {
+        // Act & Assert
+        var result = Record.Exception(() => _repository.Delete(null!));
+        result.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WithNull_ShouldThrow()
+    {
+        // Act & Assert
+        var result = await Record.ExceptionAsync(() => _repository.DeleteAsync(null!));
+        result.Should().NotBeNull();
+    }
+
     #endregion
 
     #region List (no predicate)

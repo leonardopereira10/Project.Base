@@ -7,7 +7,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <IsPackable>true</IsPackable>
     <PackageId>Project.Base.Contracts</PackageId>
-    <Version>1.0.001</Version>
+    <Version>1.0.002</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
     <Description>Project.Base.Contracts - Contratos (DTO, modelos) base para Project.Base library</Description>
@@ -16,8 +16,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>dotnet c# dto contracts models base</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>1.0.001</AssemblyVersion>
-    <FileVersion>1.0.001</FileVersion>
+    <AssemblyVersion>1.0.002</AssemblyVersion>
+    <FileVersion>1.0.002</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>

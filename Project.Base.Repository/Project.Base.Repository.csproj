@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
     <PackageId>Project.Base.Repository</PackageId>
-    <Version>1.0.001</Version>
+    <Version>1.0.002</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
     <Description>Project.Base.Repository - Implementação genérica de repositórios com Entity Framework Core para Project.Base library</Description>
@@ -18,8 +18,8 @@
     <PackageTags>dotnet c# repository entityframework efcore generic base</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <AssemblyVersion>1.0.001</AssemblyVersion>
-    <FileVersion>1.0.001</FileVersion>
+    <AssemblyVersion>1.0.002</AssemblyVersion>
+    <FileVersion>1.0.002</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>

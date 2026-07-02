@@ -7,7 +7,7 @@
     <NeutralLanguage>en</NeutralLanguage>
     <IsPackable>true</IsPackable>
     <PackageId>Project.Base.Enumerators</PackageId>
-    <Version>1.0.001</Version>
+    <Version>1.0.002</Version>
     <Authors>Leonardo Pereira Cabral</Authors>
     <Company>Project.Base</Company>
     <Description>Project.Base.Enumerators - Enumeradores base para Project.Base library</Description>
@@ -17,8 +17,8 @@
     <PackageTags>dotnet c# enumerators base</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <AssemblyVersion>1.0.001</AssemblyVersion>
-    <FileVersion>1.0.001</FileVersion>
+    <AssemblyVersion>1.0.002</AssemblyVersion>
+    <FileVersion>1.0.002</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>

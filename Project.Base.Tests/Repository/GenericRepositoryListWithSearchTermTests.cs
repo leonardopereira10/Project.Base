@@ -912,6 +912,49 @@ public class GenericRepositoryListWithSearchTermTests : IDisposable
 
     #endregion
 
+    #region No-String-Properties Branch
+
+    /// <summary>
+    /// Testa que quando a entidade não possui propriedades string,
+    /// ListWithSearchTerm retorna todos os registros (caminho do else).
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_WithoutStringProperties_ShouldReturnAll()
+    {
+        // Arrange
+        var noStringOptions = new DbContextOptionsBuilder<TestDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        var noStringContext = new TestDbContext(noStringOptions);
+        var noStringRepo = new TestNoStringRepository(noStringContext);
+
+        noStringContext.NoStringEntities.AddRange(
+            new NoStringEntity { Id = Guid.NewGuid(), Code = 1, Value = 100m },
+            new NoStringEntity { Id = Guid.NewGuid(), Code = 2, Value = 200m },
+            new NoStringEntity { Id = Guid.NewGuid(), Code = 3, Value = 300m }
+        );
+        noStringContext.SaveChanges();
+
+        var param = new PagedSearchParam
+        {
+            Page = 1,
+            Limit = 10,
+            Order = EnumOrder.ASCENDING,
+            SearchTerm = "any", // searchTerm é fornecido, mas não há propriedades string
+            SearchTarget = null
+        };
+
+        // Act
+        var result = noStringRepo.List(param);
+
+        // Assert — deve retornar todos os 3 registros (nenhuma filtragem por string é possível)
+        result.Results.Should().HaveCount(3);
+        result.ActualPage.Should().Be(1);
+        result.ReturnedInActualPage.Should().Be(3);
+    }
+
+    #endregion
+
     #region Helpers
 
     private void ClearData()

@@ -10,6 +10,7 @@ public class TestDbContext : DbContext
     }
 
     public DbSet<TestEntity> TestEntities { get; set; } = null!;
+    public DbSet<NoStringEntity> NoStringEntities { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,6 +21,13 @@ public class TestDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).IsRequired();
+        });
+
+        modelBuilder.Entity<NoStringEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Code).IsRequired();
+            entity.Property(e => e.Value).IsRequired();
         });
     }
 }
