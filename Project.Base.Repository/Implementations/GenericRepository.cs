@@ -314,8 +314,7 @@ namespace Project.Base.Repository.Implementations
         {
             var filter = GetFilter(searchParams.SearchTarget!, searchParams.SearchTerm!);
 
-            // Usa AsEnumerable() para suportar Func<T, bool> (reflection-based)
-            var results = Persistence.AsEnumerable().Where(filter).ToList();
+            var results = Persistence.Where(filter);
 
             // Normaliza paginação
             int page = searchParams.Page < 1 ? 1 : searchParams.Page;
@@ -326,8 +325,8 @@ namespace Project.Base.Repository.Implementations
             if (limit > 0)
             {
                 results = order == EnumOrder.ASCENDING
-                    ? results.OrderBy(x => x).Skip((page - 1) * limit).Take(limit).ToList()
-                    : results.OrderByDescending(x => x).Skip((page - 1) * limit).Take(limit).ToList();
+                    ? results.OrderBy(x => x).Skip((page - 1) * limit).Take(limit)
+                    : results.OrderByDescending(x => x).Skip((page - 1) * limit).Take(limit);
             }
             else
             {
@@ -342,7 +341,7 @@ namespace Project.Base.Repository.Implementations
                 ActualPage = page,
                 Results = results,
                 Limit = searchParams.Limit,
-                ReturnedInActualPage = results.Count,
+                ReturnedInActualPage = results.Count(),
                 TotalCount = Persistence.Count(),
                 PagesCount = limit > 0
                     ? (int)Math.Round(Persistence.Count() / (double)limit, MidpointRounding.ToPositiveInfinity)

@@ -846,6 +846,33 @@ public class GenericRepositoryListWithSearchTermTests : IDisposable
     }
 
     /// <summary>
+    /// Testa que DESCENDING + SearchTarget definido + sem paginação retorna resultados filtrados
+    /// ordenados descendentemente.
+    /// </summary>
+    [Fact]
+    public void ListWithSearchTerm_WithSearchTarget_Descending_WithoutPagination_ShouldReturnFilteredResults()
+    {
+        // Arrange
+        var param = new PagedSearchParam
+        {
+            Page = 0,
+            Limit = 0,
+            Order = EnumOrder.DESCENDING,
+            SearchTarget = "Name",
+            SearchTerm = ""
+        };
+
+        // Act
+        var result = _repository.List(param);
+
+        // Assert — retorna todos filtrados ordenados descendentemente por Id
+        result.ActualPage.Should().Be(1);
+        result.Results.Should().HaveCount(5);
+        var resultsList = result.Results.ToList();
+        resultsList[0].Id.CompareTo(resultsList[4].Id).Should().BeGreaterThan(0);
+    }
+
+    /// <summary>
     /// Testa consistência: SearchTerm com Page/Limit defaults retorna resultados filtrados,
     /// e sem SearchTerm retorna TODOS. Ambos sem paginação, comportamento consistente.
     /// </summary>
