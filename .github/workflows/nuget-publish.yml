@@ -44,7 +44,6 @@ jobs:
           --no-build
           --no-restore
           --collect:"XPlat Code Coverage"
-          --settings:coverlet.runsettings
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Install ReportGenerator
