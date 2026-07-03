@@ -48,31 +48,32 @@ jobs:
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
       - name: Create Coverage Report with ReportGenerator
         run: |
-          echo "=== Searching for coverage files ==="
+          echo "=== Debug: Finding coverage files ==="
     
-          # Find the coverage file - more flexible search
-          COVERAGE_FILE=$(find . -type f -name "coverage.opencover.xml" 2>/dev/null | head -n 1)
+          # List all files in workspace
+          echo "All XML files in workspace:"
+          find . -name "*.xml" -type f 2>/dev/null | grep -i coverage || echo "No coverage XML found"
     
-          # If not found, try alternative names
+          # List TestResults directories
+          echo ""
+          echo "TestResults directories:"
+          find . -type d -name "TestResults" 2>/dev/null || echo "No TestResults found"
+    
+          # Try to find coverage file with different patterns
+          echo ""
+          echo "Searching for coverage files:"
+          COVERAGE_FILE=$(find . -name "*coverage*.xml" -type f 2>/dev/null | head -n 1)
+    
           if [ -z "$COVERAGE_FILE" ]; then
-            COVERAGE_FILE=$(find . -type f -name "*.opencover.xml" 2>/dev/null | head -n 1)
-          fi
-    
-          if [ -z "$COVERAGE_FILE" ]; then
-            COVERAGE_FILE=$(find . -type f -name "coverage.cobertura.xml" 2>/dev/null | head -n 1)
-          fi
-    
-          if [ -z "$COVERAGE_FILE" ]; then
-            echo "::error::No coverage file found"
-            echo "Available files in TestResults:"
-            find . -path "*/TestResults/*" -name "*.xml" -type f 2>/dev/null
+            echo "::error::Coverage file not found"
+            echo "Looking for files in TestResults:"
+            find . -path "*/TestResults/*" -type f 2>/dev/null | head -20
             exit 1
           fi
     
-          echo "✅ Found coverage file: $COVERAGE_FILE"
+          echo "Found coverage file: $COVERAGE_FILE"
     
           # Create coverage directory
           mkdir -p ${{ github.workspace }}/coverage-report
@@ -86,7 +87,6 @@ jobs:
     
           echo "=== Generated Reports ==="
           ls -lh ${{ github.workspace }}/coverage-report/
-
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
