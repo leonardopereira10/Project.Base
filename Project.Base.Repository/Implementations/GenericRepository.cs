@@ -110,12 +110,12 @@ namespace Project.Base.Repository.Implementations
 
                 persistence = order == EnumOrder.ASCENDING ? (IQueryable<TObjeto>)persistence.OrderBy(x => x) : persistence.OrderByDescending(x => x);
 
+                int totalCount = Persistence.Count();
+
                 if (itemsByPage > 0)
                 {
                     persistence = persistence.Skip((page - 1) * itemsByPage).Take(itemsByPage);
                 }
-
-                int totalCount = persistence.Count();
 
                 return new PagedSearchReturn<TObjeto>
                 {
@@ -284,14 +284,14 @@ namespace Project.Base.Repository.Implementations
                 : query.OrderByDescending(x => x);
 
             // Aplica paginação apenas se Limit > 0
+            int totalCount = Persistence.Count();
+
             if (limit > 0)
             {
                 query = query.Skip((page - 1) * limit).Take(limit);
             }
 
             var results = query.ToList();
-
-            int totalCount = Persistence.Count();
 
             return new PagedSearchReturn<TObjeto>
             {
