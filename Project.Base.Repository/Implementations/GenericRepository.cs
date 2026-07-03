@@ -373,7 +373,7 @@ namespace Project.Base.Repository.Implementations
         {
             return (Objeto) =>
             {
-                System.Reflection.PropertyInfo prop = typeof(TObjeto).GetProperties().First(prop => prop.Name.ToUpper() == searchTarget.ToUpper());
+                System.Reflection.PropertyInfo prop = typeof(TObjeto).GetProperties().First(prop => string.Equals(prop.Name, searchTarget, StringComparison.OrdinalIgnoreCase));
                 object? value = prop.GetValue(Objeto);
                 return value is null || value.ToString()!.Contains(searchTerm);
             };
