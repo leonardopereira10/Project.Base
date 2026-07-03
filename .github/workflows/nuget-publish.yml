@@ -1,51 +1,271 @@
-name: Publish NuGet Package
+name: CI/CD - Build, Test, SonarQube & NuGet Publish
 
 on:
   push:
-    # branches: [ "main" ]
+    branches: ['main']
     tags:
       - 'v*.*.*'
+  pull_request:
+    branches: ['main']
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'Project.Base.sln'
+  COVERAGE_THRESHOLD: 80
 
 jobs:
-  build:
+  # ============================================
+  # CI - Build, Test & Coverage
+  # ============================================
+  ci-validation:
     runs-on: ubuntu-latest
-    environment: nuget 
-    permissions:
-      id-token: write
-      contents: read
+    name: 'CI: Build, Test & Coverage'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
+      - name: Run Unit Tests with Coverage
+        run: >-
+          dotnet test ${{ env.SOLUTION_FILE }}
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/*.trx'
+          retention-days: 30
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ github.workspace }}/coverage/Project.Base.Tests.cobertura.xml
+          retention-days: 90
+
+  # ============================================
+  # Gate - Coverage Threshold Check
+  # ============================================
+  coverage-gate:
+    runs-on: ubuntu-latest
+    name: 'Coverage Gate Check'
+    needs: ci-validation
+    if: always()
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Check Coverage Threshold
+        run: |
+          COVERAGE_FILE="coverage/Project.Base.Tests.cobertura.xml"
+
+          if [ ! -f "$COVERAGE_FILE" ]; then
+            echo "::warning::Coverage file not found, skipping threshold check"
+            exit 0
+          fi
+
+          echo "=== Coverage Threshold Validation ==="
+          echo "Required minimum coverage: ${{ env.COVERAGE_THRESHOLD }}%"
+          echo ""
+
+          # Extract total and covered lines from Cobertura XML using awk
+          TOTAL_LINES=$(awk -F'"' '/<line count=/{total+=$4} END{print total+0}' "$COVERAGE_FILE")
+          COVERED_LINES=$(awk -F'"' '/<line count=/{if($4+0 > 0) covered++} END{print covered+0}' "$COVERAGE_FILE")
+
+          if [ "$TOTAL_LINES" -eq 0 ]; then
+            echo "⚠️  No line coverage data found, skipping threshold check"
+            exit 0
+          fi
+
+          COVERAGE=$((COVERED_LINES * 100 / TOTAL_LINES))
+          echo "Total lines: $TOTAL_LINES"
+          echo "Covered lines: $COVERED_LINES"
+          echo "Coverage: ${COVERAGE}%"
+          echo ""
+
+          if [ "$COVERAGE" -ge ${{ env.COVERAGE_THRESHOLD }} ]; then
+            echo "✅ Coverage threshold PASSED (≥${{ env.COVERAGE_THRESHOLD }}%)"
+            exit 0
+          else
+            echo "❌ Coverage threshold FAILED (<${{ env.COVERAGE_THRESHOLD }}%)"
+            exit 1
+          fi
+
+  # ============================================
+  # SonarQube Analysis (Self-Hosted Runner)
+  # ============================================
+  sonarqube-analysis:
+    runs-on: [self-hosted, windows]
+    name: 'SonarQube: Security & Coverage Analysis'
+    environment: nuget
+    needs: ci-validation
+    if: always()
+    env:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'http://localhost:9000' }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore Project.Base.sln
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
+      - name: Install SonarScanner CLI
+        run: dotnet tool install -g dotnet-sonarscanner || dotnet tool update -g dotnet-sonarscanner
+
+      - name: Begin SonarQube Analysis
+        run: |
+          dotnet-sonarscanner begin ^
+            /k:"Project.Base" ^
+            /d:sonar.host.url="%SONAR_HOST_URL%" ^
+            /d:sonar.projectKey="Project.Base" ^
+            /d:sonar.projectName="Project.Base" ^
+            /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
+            /d:sonar.tests="Project.Base.Tests" ^
+            /d:sonar.coverage.cobertura.reports="coverage\Project.Base.Tests.cobertura.xml" ^
+            /d:sonar.token="%SONAR_TOKEN%"
+        shell: cmd
+
+      - name: Run Tests for SonarQube
+        run: >-
+          dotnet test ${{ env.SOLUTION_FILE }}
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=test-results.trx"
+
+      - name: End SonarQube Analysis
+        run: dotnet-sonarscanner end /d:sonar.token="%SONAR_TOKEN%"
+        shell: cmd
+
+      - name: Upload SonarQube Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonarqube-report
+          path: sonar-report/
+          retention-days: 90
+        continue-on-error: true
+
+  # ============================================
+  # CD - NuGet Publish (Tag Only)
+  # ============================================
+  publish-nuget:
+    runs-on: ubuntu-latest
+    name: 'CD: Publish NuGet Packages'
+    needs: [ci-validation, coverage-gate, sonarqube-analysis]
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment: nuget
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build
-        run: dotnet build Project.Base.sln --configuration Release --no-restore
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test Project.Base.sln --configuration Release --no-build --no-restore
-
-      - name: Pack
+      - name: Pack NuGet Packages
         run: |
-          dotnet pack Project.Base.Enumerators/Project.Base.Enumerators.csproj --configuration Release --no-build --output ./nupkg
-          dotnet pack Project.Base.Contracts/Project.Base.Contracts.csproj --configuration Release --no-build --output ./nupkg
-          dotnet pack Project.Base.Domain/Project.Base.Domain.csproj --configuration Release --no-build --output ./nupkg
-          dotnet pack Project.Base.Repository/Project.Base.Repository.csproj --configuration Release --no-build --output ./nupkg
-          dotnet pack Project.Base.WebApi/Project.Base.WebApi.csproj --configuration Release --no-build --output ./nupkg
-        
-      # Get a short-lived NuGet API key
+          mkdir -p ./nupkg
+
+          dotnet pack Project.Base.Enumerators/Project.Base.Enumerators.csproj \
+            --configuration Release --no-build --output ./nupkg
+
+          dotnet pack Project.Base.Contracts/Project.Base.Contracts.csproj \
+            --configuration Release --no-build --output ./nupkg
+
+          dotnet pack Project.Base.Domain/Project.Base.Domain.csproj \
+            --configuration Release --no-build --output ./nupkg
+
+          dotnet pack Project.Base.Repository/Project.Base.Repository.csproj \
+            --configuration Release --no-build --output ./nupkg
+
+          dotnet pack Project.Base.WebApi/Project.Base.WebApi.csproj \
+            --configuration Release --no-build --output ./nupkg
+
+          echo "=== Packed Packages ==="
+          ls -lh ./nupkg/
+
+      - name: Validate NuGet Packages
+        run: |
+          for package in ./nupkg/Project.Base.*.nupkg; do
+            echo "Validating: $(basename "$package")"
+            dotnet nuget verify -v "$package"
+          done
+          echo "✅ All packages validated"
+
+                # Get a short-lived NuGet API key
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      # Push the package
-      - name: NuGet push
-        run: dotnet nuget push "./nupkg/Project.Base.*.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
-     
+      - name: Push to NuGet.org
+        run: |
+          for package in ./nupkg/Project.Base.*.nupkg; do
+            echo "Pushing: $(basename "$package")"
+            dotnet nuget push "$package" \
+              --source https://api.nuget.org/v3/index.json \
+              --api-key ${{steps.login.outputs.NUGET_API_KEY}}
+            echo "✅ Pushed: $(basename "$package")"
+          done
+          echo "=== All packages published successfully ==="
+
+      - name: Upload NuGet Packages as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./nupkg/
+          retention-days: 90

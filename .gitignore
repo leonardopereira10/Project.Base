@@ -265,3 +265,4 @@ paket-files/
 /.vs/Project.Base/v17/.futdcache.v2
 /.vs/Project.Base/v17/.suo
 /.vs/ProjectEvaluation/project.base.metadata.v7.bin
+/coverage
