@@ -21,7 +21,6 @@
   <PropertyGroup>
     <CollectCoverage>true</CollectCoverage>
     <CoverletOutputFormat>cobertura</CoverletOutputFormat>
-    <CoverletOutputDirectory>$(MSBuildThisFileDirectory)..\coverage</CoverletOutputDirectory>
     <CoverletOutput>$(MSBuildProjectName).cobertura</CoverletOutput>
     <Exclude>[Project.Base.]*,[Project.Base.Tests]*</Exclude>
   </PropertyGroup>
