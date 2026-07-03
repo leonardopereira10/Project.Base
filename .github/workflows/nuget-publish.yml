@@ -162,7 +162,6 @@ jobs:
           $dotnetToolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
           echo "$dotnetToolsPath" >> $env:GITHUB_PATH
           $env:PATH = "$dotnetToolsPath;$env:PATH"
-        shell: pwsh
 
       - name: Install SonarScanner CLI
         run: dotnet tool install --global dotnet-sonarscanner
