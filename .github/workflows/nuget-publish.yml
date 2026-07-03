@@ -37,19 +37,43 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
-      - name: Run Unit Tests with Coverage
+      - name: Run Unit Tests with Coverage (OpenCover)
         run: >-
           dotnet test ${{ env.SOLUTION_FILE }}
           --configuration Release
           --no-build
           --no-restore
-          --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --settings:coverlet.runsettings
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
-      - name: Prepare Coverage Report
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Create Coverage Report with ReportGenerator
         run: |
-          mkdir -p ${{ github.workspace }}/coverage
-          cp ${{ github.workspace }}/Project.Base.Tests/Project.Base.Tests.cobertura \
-             ${{ github.workspace }}/coverage/Project.Base.Tests.cobertura.xml
+          # Find the coverage file
+          COVERAGE_FILE=$(find . -name "coverage.opencover.xml" -type f | head -n 1)
+          
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "::error::Coverage file not found"
+            exit 1
+          fi
+          
+          echo "Found coverage file: $COVERAGE_FILE"
+          
+          # Create coverage directory
+          mkdir -p ${{ github.workspace }}/coverage-report
+          
+          # Generate reports using ReportGenerator
+          reportgenerator \
+            -reports:"$COVERAGE_FILE" \
+            -targetdir:"${{ github.workspace }}/coverage-report" \
+            -reporttypes:"Cobertura;HtmlSummary" \
+            -verbosity:Error
+          
+          echo "=== Generated Reports ==="
+          ls -lh ${{ github.workspace }}/coverage-report/
 
       - name: Upload Test Results
         if: always()
@@ -59,12 +83,20 @@ jobs:
           path: '**/*.trx'
           retention-days: 30
 
-      - name: Upload Coverage Report
+      - name: Upload Coverage Report (Cobertura)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: ${{ github.workspace }}/coverage/Project.Base.Tests.cobertura.xml
+          path: ${{ github.workspace }}/coverage-report/Cobertura.xml
+          retention-days: 90
+
+      - name: Upload Coverage HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: ${{ github.workspace }}/coverage-report/
           retention-days: 90
 
   # ============================================
@@ -87,27 +119,34 @@ jobs:
 
       - name: Check Coverage Threshold
         run: |
-          COVERAGE_FILE="coverage/Project.Base.Tests.cobertura.xml"
+          COVERAGE_FILE="coverage/Cobertura.xml"
 
           if [ ! -f "$COVERAGE_FILE" ]; then
-            echo "::warning::Coverage file not found, skipping threshold check"
-            exit 0
+            echo "::error::Coverage file not found at $COVERAGE_FILE"
+            ls -la coverage/
+            exit 1
           fi
 
           echo "=== Coverage Threshold Validation ==="
           echo "Required minimum coverage: ${{ env.COVERAGE_THRESHOLD }}%"
           echo ""
 
-          # Extract total and covered lines from Cobertura XML using awk
-          TOTAL_LINES=$(awk -F'"' '/<line count=/{total+=$4} END{print total+0}' "$COVERAGE_FILE")
-          COVERED_LINES=$(awk -F'"' '/<line count=/{if($4+0 > 0) covered++} END{print covered+0}' "$COVERAGE_FILE")
+          # Extract coverage data from Cobertura XML
+          TOTAL_LINES=$(grep -o 'lines-valid="[0-9]*"' "$COVERAGE_FILE" | grep -o '[0-9]*' | head -1)
+          COVERED_LINES=$(grep -o 'lines-covered="[0-9]*"' "$COVERAGE_FILE" | grep -o '[0-9]*' | head -1)
 
-          if [ "$TOTAL_LINES" -eq 0 ]; then
-            echo "⚠️  No line coverage data found, skipping threshold check"
-            exit 0
+          if [ -z "$TOTAL_LINES" ] || [ "$TOTAL_LINES" -eq 0 ]; then
+            echo "::error::No valid coverage data found in XML"
+            cat "$COVERAGE_FILE" | head -20
+            exit 1
+          fi
+
+          if [ -z "$COVERED_LINES" ]; then
+            COVERED_LINES=0
           fi
 
           COVERAGE=$((COVERED_LINES * 100 / TOTAL_LINES))
+          
           echo "Total lines: $TOTAL_LINES"
           echo "Covered lines: $COVERED_LINES"
           echo "Coverage: ${COVERAGE}%"
@@ -117,7 +156,7 @@ jobs:
             echo "✅ Coverage threshold PASSED (≥${{ env.COVERAGE_THRESHOLD }}%)"
             exit 0
           else
-            echo "❌ Coverage threshold FAILED (<${{ env.COVERAGE_THRESHOLD }}%)"
+            echo "❌ Coverage threshold FAILED (${COVERAGE}% < ${{ env.COVERAGE_THRESHOLD }}%)"
             exit 1
           fi
 
@@ -174,7 +213,8 @@ jobs:
             /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
             /d:sonar.tests="Project.Base.Tests" ^
             /d:sonar.token="${{ env.SONAR_TOKEN }}" ^
-            /d:sonar.cobertura.reportsPaths="coverage/Project.Base.Tests.cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage/*.xml" ^
+            /d:sonar.cobertura.reportsPaths="${{ github.workspace }}/coverage/Cobertura.xml"
         shell: cmd
 
       - name: Restore Dependencies
@@ -190,8 +230,6 @@ jobs:
           --no-build
           --no-restore
           --logger "trx;LogFileName=test-results.trx"
-          --collect:"XPlat Code Coverage"
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
       - name: End SonarQube Analysis
         run: |
