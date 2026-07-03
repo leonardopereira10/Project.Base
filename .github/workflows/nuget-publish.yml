@@ -156,7 +156,14 @@ jobs:
 
       - name: Build Solution
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
-        
+
+      - name: Install SonarScanner CLI
+        run: dotnet tool install --global dotnet-sonarscanner || echo "Tool already installed"
+        continue-on-error: true
+  
+      - name: Update SonarScanner CLI
+        run: dotnet tool update --global dotnet-sonarscanner
+
       - name: Begin SonarQube Analysis
         run: |
           dotnet-sonarscanner begin ^
