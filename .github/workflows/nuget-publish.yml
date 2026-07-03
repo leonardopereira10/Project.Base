@@ -157,10 +157,17 @@ jobs:
       - name: Build Solution
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
+      - name: Add dotnet tools to PATH
+        run: |
+          $dotnetToolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
+          echo "$dotnetToolsPath" >> $env:GITHUB_PATH
+          $env:PATH = "$dotnetToolsPath;$env:PATH"
+        shell: pwsh
+
       - name: Install SonarScanner CLI
-        run: dotnet tool install --global dotnet-sonarscanner || echo "Tool already installed"
+        run: dotnet tool install --global dotnet-sonarscanner
         continue-on-error: true
-  
+
       - name: Update SonarScanner CLI
         run: dotnet tool update --global dotnet-sonarscanner
 
@@ -255,7 +262,6 @@ jobs:
           done
           echo "✅ All packages validated"
 
-                # Get a short-lived NuGet API key
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
