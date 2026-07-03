@@ -115,14 +115,18 @@ namespace Project.Base.Repository.Implementations
                     persistence = persistence.Skip((page - 1) * itemsByPage).Take(itemsByPage);
                 }
 
+                int totalCount = persistence.Count();
+
                 return new PagedSearchReturn<TObjeto>
                 {
                     ActualPage = page,
                     Results = persistence,
                     ReturnedInActualPage = persistence.Count(),
                     Limit = searchParams.Limit,
-                    TotalCount = Persistence.Count(),
-                    PagesCount = (int)Math.Round(Persistence.Count() / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity),
+                    TotalCount = totalCount,
+                    PagesCount = totalCount > 0
+                        ? (int)Math.Round(totalCount / (double)searchParams.Limit, MidpointRounding.ToPositiveInfinity)
+                        : 0,
                 };
             }
             else
@@ -242,7 +246,12 @@ namespace Project.Base.Repository.Implementations
 
             IQueryable<TObjeto> query;
 
-            if (stringProperties.Any())
+            if (stringProperties.Count == 0)
+            {
+                // Sem propriedades string → retorna todos (sem filtro de texto)
+                query = Persistence.AsQueryable();
+            }
+            else
             {
                 // Constrói Expression<Func<TObjeto, bool>> dinamicamente:
                 // (prop1.Contains(term) || prop2.Contains(term) || ...)
@@ -263,11 +272,6 @@ namespace Project.Base.Repository.Implementations
                 var lambda = Expression.Lambda<Func<TObjeto, bool>>(combined!, param);
                 query = Persistence.Where(lambda);
             }
-            else
-            {
-                // Sem propriedades string → retorna todos (sem filtro de texto)
-                query = Persistence.AsQueryable();
-            }
 
             // Normaliza paginação (padrão sem paginação = todos os resultados)
             int page = searchParams.Page < 1 ? 1 : searchParams.Page;
@@ -287,15 +291,17 @@ namespace Project.Base.Repository.Implementations
 
             var results = query.ToList();
 
+            int totalCount = Persistence.Count();
+
             return new PagedSearchReturn<TObjeto>
             {
                 ActualPage = page,
                 Results = results,
                 Limit = searchParams.Limit,
                 ReturnedInActualPage = results.Count,
-                TotalCount = Persistence.Count(),
+                TotalCount = totalCount,
                 PagesCount = limit > 0
-                    ? (int)Math.Round(Persistence.Count() / (double)limit, MidpointRounding.ToPositiveInfinity)
+                    ? (int)Math.Round(totalCount / (double)limit, MidpointRounding.ToPositiveInfinity)
                     : 1,
             };
         }
@@ -336,15 +342,17 @@ namespace Project.Base.Repository.Implementations
                     : results.OrderByDescending(x => x).ToList();
             }
 
+            int totalCount = results.Count();
+
             return new PagedSearchReturn<TObjeto>
             {
                 ActualPage = page,
                 Results = results,
                 Limit = searchParams.Limit,
                 ReturnedInActualPage = results.Count(),
-                TotalCount = Persistence.Count(),
+                TotalCount = totalCount,
                 PagesCount = limit > 0
-                    ? (int)Math.Round(Persistence.Count() / (double)limit, MidpointRounding.ToPositiveInfinity)
+                    ? (int)Math.Round(totalCount / (double)limit, MidpointRounding.ToPositiveInfinity)
                     : 1,
             };
         }
@@ -358,10 +366,10 @@ namespace Project.Base.Repository.Implementations
         /// </param>
         /// <param name="searchTerm">The text to search for within the property value.</param>
         /// <returns>
-        /// A <see cref="Func{TObjeto,bool}"/> predicate that returns true when the property
+        /// A predicate that returns true when the property
         /// value is null or contains the search term.
         /// </returns>
-        protected Func<TObjeto, bool> GetFilter(string searchTarget, string searchTerm)
+        protected static Func<TObjeto, bool> GetFilter(string searchTarget, string searchTerm)
         {
             return (Objeto) =>
             {

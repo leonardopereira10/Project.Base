@@ -31,8 +31,8 @@ namespace Project.Base.Domain.Services
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseService{TObject,TDto}"/> class, the concrete
-        /// class must have the constructor using the concrete repository and he must implement 
-        /// <see cref="IBaseObjectWithIdRepository<TObject>"/>.
+        /// class must have the constructor using the concrete repository and he must implement
+        /// <see cref="IBaseObjectWithIdRepository{TObject}"/>.
         /// </summary>
         /// <remarks>
         /// To use specific methods of repository you must delcare a method with CAST of _repository
@@ -55,6 +55,8 @@ namespace Project.Base.Domain.Services
             var obj = await _repository.DeleteAsync(id).ConfigureAwait(false);
             return Converter().ConvertToDtoOutput(obj);
         }
+
+        // ── Find overloads (agrupados) ──
 
         /// <summary>
         /// Finds entities with full filtering options, including a specific search target property.
@@ -82,6 +84,25 @@ namespace Project.Base.Domain.Services
             });
             return GetPagedSearchOutput(paged);
         }
+
+        /// <summary>
+        /// Finds entities with pagination, ordering, and a search term applied across all string properties.
+        /// This is a convenience overload that delegates to <see cref="Find(int,int,EnumOrder,string?,string?)"/>
+        /// with <paramref name="searchTarget"/> set to null.
+        /// </summary>
+        /// <param name="pageIndex">The page number to retrieve (1-based).</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <param name="order">The sort order direction.</param>
+        /// <param name="searchTerm">The text to search for.</param>
+        /// <returns>
+        /// A <see cref="DtoOutput{TDto}"/> containing the paginated and filtered entity DTOs.
+        /// </returns>
+        public async Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
+        {
+            return await Find(pageIndex, pageSize, order, null, searchTerm).ConfigureAwait(false);
+        }
+
+        // ── Fim dos métodos Find ──
 
         /// <summary>
         /// Retrieves all entities without any filtering or pagination.
@@ -152,23 +173,6 @@ namespace Project.Base.Domain.Services
 
             TObject updated = await _repository.UpdateAsync(obj).ConfigureAwait(false);
             return Converter().ConvertToDtoOutput(updated);
-        }
-
-        /// <summary>
-        /// Finds entities with pagination, ordering, and a search term applied across all string properties.
-        /// This is a convenience overload that delegates to <see cref="Find(int,int,EnumOrder,string?,string?)"/>
-        /// with <paramref name="searchTarget"/> set to null.
-        /// </summary>
-        /// <param name="pageIndex">The page number to retrieve (1-based).</param>
-        /// <param name="pageSize">The number of items per page.</param>
-        /// <param name="order">The sort order direction.</param>
-        /// <param name="searchTerm">The text to search for.</param>
-        /// <returns>
-        /// A <see cref="DtoOutput{TDto}"/> containing the paginated and filtered entity DTOs.
-        /// </returns>
-        public async Task<DtoOutput<TDto>> Find(int pageIndex, int pageSize, EnumOrder order, string searchTerm)
-        {
-            return await Find(pageIndex, pageSize, order, null, searchTerm).ConfigureAwait(false);
         }
 
         /// <summary>
