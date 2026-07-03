@@ -157,8 +157,13 @@ jobs:
           echo "$dotnetToolsPath" >> $env:GITHUB_PATH
           $env:PATH = "$dotnetToolsPath;$env:PATH"
 
-      - name: Install/Update SonarScanner CLI
-        run: dotnet tool install --global dotnet-sonarscanner || dotnet tool update --global dotnet-sonarscanner
+      - name: Install SonarScanner CLI
+        run: dotnet tool install --global dotnet-sonarscanner
+        continue-on-error: true
+        
+      - name: Update SonarScanner CLI
+        run: dotnet tool update --global dotnet-sonarscanner
+        continue-on-error: true
 
       - name: Begin SonarQube Analysis
         run: |
