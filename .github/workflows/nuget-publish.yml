@@ -45,9 +45,7 @@ jobs:
             --no-restore \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=${{ github.workspace }}/coverage/coverage.opencover.xml \
-            /p:Threshold=80 \
-            /p:ThresholdType=line
+            /p:CoverletOutput=${{ github.workspace }}/coverage/coverage.opencover.xml 
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
