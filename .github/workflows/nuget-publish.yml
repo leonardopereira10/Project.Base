@@ -51,26 +51,48 @@ jobs:
 
       - name: Create Coverage Report with ReportGenerator
         run: |
-          # Find the coverage file
-          COVERAGE_FILE=$(find . -name "coverage.opencover.xml" -type f | head -n 1)
-          
+          echo "=== Searching for coverage files ==="
+    
+          # List all files in TestResults directories
+          find . -type d -name "TestResults" -exec ls -la {} \;
+    
+          # Find coverage files (any format)
+          echo "=== All coverage files ==="
+          find . -name "*.opencover.xml" -o -name "coverage.cobertura.xml" -o -name "coverage.xml" -type f
+    
+          # Try to find the OpenCover file
+          COVERAGE_FILE=$(find . -name "coverage.opencover.xml" -type f 2>/dev/null | head -n 1)
+    
+          # If not found, try alternative names
           if [ -z "$COVERAGE_FILE" ]; then
-            echo "::error::Coverage file not found"
+            echo "OpenCover file not found, trying other formats..."
+            COVERAGE_FILE=$(find . -name "coverage.cobertura.xml" -type f 2>/dev/null | head -n 1)
+          fi
+    
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "Cobertura file not found, trying generic coverage.xml..."
+            COVERAGE_FILE=$(find . -name "coverage.xml" -type f 2>/dev/null | head -n 1)
+          fi
+    
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "::error::No coverage file found!"
+            echo "Available files in workspace:"
+            find . -name "*.xml" -type f | grep -i coverage || echo "No coverage XML files found"
             exit 1
           fi
-          
-          echo "Found coverage file: $COVERAGE_FILE"
-          
+    
+          echo "✅ Found coverage file: $COVERAGE_FILE"
+    
           # Create coverage directory
           mkdir -p ${{ github.workspace }}/coverage-report
-          
+    
           # Generate reports using ReportGenerator
           reportgenerator \
             -reports:"$COVERAGE_FILE" \
             -targetdir:"${{ github.workspace }}/coverage-report" \
             -reporttypes:"Cobertura;HtmlSummary" \
             -verbosity:Error
-          
+    
           echo "=== Generated Reports ==="
           ls -lh ${{ github.workspace }}/coverage-report/
 
