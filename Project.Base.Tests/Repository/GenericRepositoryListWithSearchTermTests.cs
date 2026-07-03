@@ -44,6 +44,7 @@ public class GenericRepositoryListWithSearchTermTests : IDisposable
     public void Dispose()
     {
         _context.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     #region Cenário Principal 1: Sem SearchTarget (busca dinâmica em todos os campos textuais)

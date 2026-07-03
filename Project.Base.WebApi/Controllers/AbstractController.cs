@@ -162,8 +162,21 @@ namespace Project.Base.WebApi.Controllers
             {
                 return CreatedAtAction(nameof(FindById), new { id = dto.ResultSet }, dto);
             }
-            if (dto != null && CheckResult(dto))
+            if (dto == null)
+            {
                 return BadRequest(dto);
+            }
+            if (!dto.Success)
+            {
+                try
+                {
+                    await ThrowIfFailed(Task.FromResult(dto), "Insert").ConfigureAwait(false);
+                }
+                catch (ValidationException)
+                {
+                    return BadRequest(dto);
+                }
+            }
             return BadRequest(dto);
         }
 
@@ -181,8 +194,25 @@ namespace Project.Base.WebApi.Controllers
         protected virtual async Task<ActionResult<DtoOutput<TDto>>> Update([FromBody] TDto newObj)
         {
             DtoOutput<TDto> dto = await _service.Update(newObj).ConfigureAwait(false);
-            if (dto?.Success == false && CheckResult(dto))
+            if (dto == null)
+            {
                 return BadRequest(dto);
+            }
+            if (!dto.Success)
+            {
+                var hasImpeditive = dto.ValidationFails?.Any(v => v.IsImpeditive) == true;
+                if (hasImpeditive)
+                {
+                    try
+                    {
+                        await ThrowIfFailed(Task.FromResult(dto), "Update").ConfigureAwait(false);
+                    }
+                    catch (ValidationException)
+                    {
+                        return BadRequest(dto);
+                    }
+                }
+            }
             return Ok(dto);
         }
 
@@ -195,18 +225,21 @@ namespace Project.Base.WebApi.Controllers
         /// or HTTP 400 Bad Request if the entity does not exist or validation fails.
         /// </returns>
         [ApiExplorerSettings(IgnoreApi = true)]
-        protected virtual ActionResult Delete([FromQuery] Guid id)
+        protected virtual async Task<ActionResult> Delete([FromQuery] Guid id)
         {
             try
             {
-                _ = _service.Delete(id);
+                DtoOutput<TDto> dto = await _service.Delete(id).ConfigureAwait(false);
+                if (dto?.Success == true)
+                {
+                    return Ok(dto);
+                }
+                return BadRequest(dto);
             }
-            catch
+            catch (Exception)
             {
                 return BadRequest(id);
             }
-
-            return Ok();
         }
     }
 }
