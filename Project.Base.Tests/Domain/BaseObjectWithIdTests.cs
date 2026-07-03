@@ -158,4 +158,291 @@ public class BaseObjectWithIdTests
     }
 
     #endregion
+
+    #region Equals(object?)
+
+    [Fact]
+    public void Equals_NullObject_ShouldReturnFalse()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+
+        // Act
+        var result = entity.Equals((object?)null);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_DifferentType_ShouldReturnFalse()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+        var otherObject = "not an entity";
+
+        // Act
+        var result = entity.Equals(otherObject);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Equals_SameInstance_ShouldReturnTrue()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+
+        // Act
+        var result = entity.Equals((object)entity);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_SameId_DifferentInstances_ShouldReturnTrue()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = entity1.Equals(entity2);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Equals_DifferentId_ShouldReturnFalse()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.NewGuid(), Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = Guid.NewGuid(), Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = entity1.Equals(entity2);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region GetHashCode
+
+    [Fact]
+    public void GetHashCode_ShouldReturnConsistentHashCode()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+        var hashCode1 = entity.GetHashCode();
+        var hashCode2 = entity.GetHashCode();
+
+        // Act & Assert
+        hashCode1.Should().Be(hashCode2);
+    }
+
+    [Fact]
+    public void GetHashCode_SameId_ShouldReturnSameHashCode()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var hashCode1 = entity1.GetHashCode();
+        var hashCode2 = entity2.GetHashCode();
+
+        // Assert
+        hashCode1.Should().Be(hashCode2);
+    }
+
+    [Fact]
+    public void GetHashCode_UseInHashSet_ShouldWork()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+        var hashSet = new HashSet<TestEntity> { entity1 };
+
+        // Act
+        var contains = hashSet.Contains(entity2);
+
+        // Assert
+        contains.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region Equality Operators
+
+    [Fact]
+    public void EqualOperator_SameId_ShouldReturnTrue()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = (entity1 == entity2);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void EqualOperator_DifferentId_ShouldReturnFalse()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.NewGuid(), Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = Guid.NewGuid(), Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = (entity1 == entity2);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EqualOperator_BothNull_ShouldReturnTrue()
+    {
+        // Arrange
+        TestEntity? entity1 = null;
+        TestEntity? entity2 = null;
+
+        // Act
+        var result = (entity1 == entity2);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void EqualOperator_LeftNull_ShouldReturnFalse()
+    {
+        // Arrange
+        TestEntity? entity1 = null;
+        var entity2 = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+
+        // Act
+        var result = (entity1 == entity2);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void EqualOperator_RightNull_ShouldReturnFalse()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.NewGuid(), Name = "Test", Email = "test@test.com" };
+        TestEntity? entity2 = null;
+
+        // Act
+        var result = (entity1 == entity2);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NotEqualOperator_DifferentId_ShouldReturnTrue()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.NewGuid(), Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = Guid.NewGuid(), Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = (entity1 != entity2);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void NotEqualOperator_SameId_ShouldReturnFalse()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = (entity1 != entity2);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Comparison Operators
+
+    [Fact]
+    public void GreaterThanOperator_ShouldReturnCorrectResult()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000003") };
+        var entity2 = new TestEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
+
+        // Act
+        var result = entity1 > entity2;
+
+        // Assert
+        result.Should().BeTrue(); // ascending: higher GUID is greater
+    }
+
+    [Fact]
+    public void LessThanOperator_ShouldReturnCorrectResult()
+    {
+        // Arrange
+        var entity1 = new TestEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
+        var entity2 = new TestEntity { Id = Guid.Parse("00000000-0000-0000-0000-000000000003") };
+
+        // Act
+        var result = entity1 < entity2;
+
+        // Assert
+        result.Should().BeTrue(); // ascending: lower GUID is less
+    }
+
+    [Fact]
+    public void GreaterThanOrEqualOperator_SameId_ShouldReturnTrue()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = entity1 >= entity2;
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void LessThanOrEqualOperator_SameId_ShouldReturnTrue()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var entity1 = new TestEntity { Id = id, Name = "Test1", Email = "test1@test.com" };
+        var entity2 = new TestEntity { Id = id, Name = "Test2", Email = "test2@test.com" };
+
+        // Act
+        var result = entity1 <= entity2;
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    #endregion
 }
