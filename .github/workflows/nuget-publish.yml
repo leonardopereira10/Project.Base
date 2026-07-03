@@ -292,7 +292,7 @@ jobs:
         run: |
           for package in ./nupkg/Project.Base.*.nupkg; do
             echo "Validating: $(basename "$package")"
-            dotnet nuget verify -v "$package"
+            dotnet nuget verify "$package"
           done
           echo "✅ All packages validated"
 
