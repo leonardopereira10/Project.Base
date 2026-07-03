@@ -174,15 +174,15 @@ jobs:
         run: |
           dotnet-sonarscanner begin ^
             /k:"Project.Base" ^
+            /n:"Project.Base" ^
             /d:sonar.host.url="%SONAR_HOST_URL%" ^
-            /d:sonar.projectKey="Project.Base" ^
-            /d:sonar.projectName="Project.Base" ^
             /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
             /d:sonar.tests="Project.Base.Tests" ^
-            /d:sonar.coverage.cobertura.reports="coverage\Project.Base.Tests.cobertura.xml" ^
+            /d:sonar.coverage.cobertura.reportsPath="coverage" ^
+            /d:sonar.coverage.cobertura.reports="coverage/Project.Base.Tests.cobertura.xml" ^
             /d:sonar.token="%SONAR_TOKEN%"
         shell: cmd
-
+        
       - name: Run Tests for SonarQube
         run: >-
           dotnet test ${{ env.SOLUTION_FILE }}
