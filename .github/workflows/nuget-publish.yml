@@ -53,31 +53,22 @@ jobs:
         run: |
           echo "=== Searching for coverage files ==="
     
-          # List all files in TestResults directories
-          find . -type d -name "TestResults" -exec ls -la {} \;
-    
-          # Find coverage files (any format)
-          echo "=== All coverage files ==="
-          find . -name "*.opencover.xml" -o -name "coverage.cobertura.xml" -o -name "coverage.xml" -type f
-    
-          # Try to find the OpenCover file
-          COVERAGE_FILE=$(find . -name "coverage.opencover.xml" -type f 2>/dev/null | head -n 1)
+          # Find the coverage file - more flexible search
+          COVERAGE_FILE=$(find . -type f -name "coverage.opencover.xml" 2>/dev/null | head -n 1)
     
           # If not found, try alternative names
           if [ -z "$COVERAGE_FILE" ]; then
-            echo "OpenCover file not found, trying other formats..."
-            COVERAGE_FILE=$(find . -name "coverage.cobertura.xml" -type f 2>/dev/null | head -n 1)
+            COVERAGE_FILE=$(find . -type f -name "*.opencover.xml" 2>/dev/null | head -n 1)
           fi
     
           if [ -z "$COVERAGE_FILE" ]; then
-            echo "Cobertura file not found, trying generic coverage.xml..."
-            COVERAGE_FILE=$(find . -name "coverage.xml" -type f 2>/dev/null | head -n 1)
+            COVERAGE_FILE=$(find . -type f -name "coverage.cobertura.xml" 2>/dev/null | head -n 1)
           fi
     
           if [ -z "$COVERAGE_FILE" ]; then
-            echo "::error::No coverage file found!"
-            echo "Available files in workspace:"
-            find . -name "*.xml" -type f | grep -i coverage || echo "No coverage XML files found"
+            echo "::error::No coverage file found"
+            echo "Available files in TestResults:"
+            find . -path "*/TestResults/*" -name "*.xml" -type f 2>/dev/null
             exit 1
           fi
     
