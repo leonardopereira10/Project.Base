@@ -151,38 +151,34 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore Dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
-
-      - name: Build Solution
-        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
-
       - name: Add dotnet tools to PATH
         run: |
           $dotnetToolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
           echo "$dotnetToolsPath" >> $env:GITHUB_PATH
           $env:PATH = "$dotnetToolsPath;$env:PATH"
+        shell: pwsh
 
-      - name: Install SonarScanner CLI
-        run: dotnet tool install --global dotnet-sonarscanner
-        continue-on-error: true
-
-      - name: Update SonarScanner CLI
-        run: dotnet tool update --global dotnet-sonarscanner
+      - name: Install/Update SonarScanner CLI
+        run: dotnet tool install --global dotnet-sonarscanner || dotnet tool update --global dotnet-sonarscanner
+        shell: pwsh
 
       - name: Begin SonarQube Analysis
         run: |
           dotnet-sonarscanner begin ^
             /k:"Project.Base" ^
             /n:"Project.Base" ^
-            /d:sonar.host.url="%SONAR_HOST_URL%" ^
+            /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" ^
             /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
             /d:sonar.tests="Project.Base.Tests" ^
-            /d:sonar.coverage.cobertura.reportsPath="coverage" ^
-            /d:sonar.coverage.cobertura.reports="coverage/Project.Base.Tests.cobertura.xml" ^
-            /d:sonar.token="%SONAR_TOKEN%"
+            /d:sonar.token="${{ env.SONAR_TOKEN }}"
         shell: cmd
-        
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
       - name: Run Tests for SonarQube
         run: >-
           dotnet test ${{ env.SOLUTION_FILE }}
@@ -190,19 +186,14 @@ jobs:
           --no-build
           --no-restore
           --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
       - name: End SonarQube Analysis
-        run: dotnet-sonarscanner end /d:sonar.token="%SONAR_TOKEN%"
+        run: |
+          dotnet-sonarscanner end ^
+            /d:sonar.token="${{ env.SONAR_TOKEN }}"
         shell: cmd
-
-      - name: Upload SonarQube Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: sonarqube-report
-          path: sonar-report/
-          retention-days: 90
-        continue-on-error: true
 
   # ============================================
   # CD - NuGet Publish (Tag Only)
