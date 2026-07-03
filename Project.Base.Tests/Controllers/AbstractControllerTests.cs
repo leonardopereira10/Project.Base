@@ -42,7 +42,7 @@ public class AbstractControllerTests
         var result = await _controller.FindById(id);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.True(actualOutput.Success);
         Assert.NotNull(actualOutput.ResultSet);
@@ -94,7 +94,7 @@ public class AbstractControllerTests
         var result = await _controller.FindAll();
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.Equal(2, actualOutput.TotalCount);
     }
@@ -133,7 +133,7 @@ public class AbstractControllerTests
         var result = await _controller.Find(1, 10, EnumOrder.ASCENDING, null, "search");
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.True(actualOutput.Success);
     }
@@ -195,7 +195,7 @@ public class AbstractControllerTests
         var result = await _controller.Insert(dto);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<CreatedAtActionResult>(result.Result);
+        var actionResult = Assert.IsType<CreatedAtActionResult>(result.Result, exactMatch: false);
         Assert.Equal("FindById", actionResult.ActionName);
         Assert.NotNull(actionResult.Value);
     }
@@ -212,7 +212,7 @@ public class AbstractControllerTests
         var result = await _controller.Insert(new TestDto());
 
         // Assert
-        Assert.IsAssignableFrom<BadRequestObjectResult>(result.Result);
+        Assert.IsType<BadRequestObjectResult>(result.Result, exactMatch: false);
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public class AbstractControllerTests
         var result = await _controller.Insert(dto);
 
         // Assert
-        Assert.IsAssignableFrom<BadRequestObjectResult>(result.Result);
+        Assert.IsType<BadRequestObjectResult>(result.Result, exactMatch: false);
     }
 
     [Fact]
@@ -259,7 +259,7 @@ public class AbstractControllerTests
         var result = await _controller.Insert(dto);
 
         // Assert
-        Assert.IsAssignableFrom<BadRequestObjectResult>(result.Result);
+        Assert.IsType<BadRequestObjectResult>(result.Result, exactMatch: false);
     }
 
     #endregion
@@ -286,7 +286,7 @@ public class AbstractControllerTests
         var result = await _controller.Update(dto);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.True(actualOutput.Success);
     }
@@ -313,7 +313,7 @@ public class AbstractControllerTests
         var result = await _controller.Update(dto);
 
         // Assert
-        Assert.IsAssignableFrom<BadRequestObjectResult>(result.Result);
+        Assert.IsType<BadRequestObjectResult>(result.Result, exactMatch: false);
     }
 
     [Fact]
@@ -338,7 +338,7 @@ public class AbstractControllerTests
         var result = await _controller.Update(dto);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+        var actionResult = Assert.IsType<OkObjectResult>(result.Result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.False(actualOutput.Success);
     }
@@ -366,7 +366,7 @@ public class AbstractControllerTests
         var result = await _controller.Delete(id);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<OkObjectResult>(result);
+        var actionResult = Assert.IsType<OkObjectResult>(result, exactMatch: false);
         var actualOutput = Assert.IsType<DtoOutput<TestDto>>(actionResult.Value);
         Assert.True(actualOutput.Success);
     }
@@ -384,7 +384,7 @@ public class AbstractControllerTests
         var result = await _controller.Delete(id);
 
         // Assert
-        var actionResult = Assert.IsAssignableFrom<BadRequestObjectResult>(result);
+        var actionResult = Assert.IsType<BadRequestObjectResult>(result, exactMatch: false);
         Assert.Equal(id, actionResult.Value);
     }
 
@@ -406,7 +406,7 @@ public class AbstractControllerTests
         var result = await _controller.Delete(id);
 
         // Assert
-        Assert.IsAssignableFrom<BadRequestObjectResult>(result);
+        Assert.IsType<BadRequestObjectResult>(result, exactMatch: false);
     }
 
     #endregion

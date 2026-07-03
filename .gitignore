@@ -267,3 +267,4 @@ paket-files/
 /.vs/ProjectEvaluation/project.base.metadata.v7.bin
 /coverage
 *.cobertura
+/test-output.txt
