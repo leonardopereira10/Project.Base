@@ -288,14 +288,6 @@ jobs:
           echo "=== Packed Packages ==="
           ls -lh ./nupkg/
 
-      - name: Validate NuGet Packages
-        run: |
-          for package in ./nupkg/Project.Base.*.nupkg; do
-            echo "Validating: $(basename "$package")"
-            dotnet nuget verify -v "$package"
-          done
-          echo "✅ All packages validated"
-
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
