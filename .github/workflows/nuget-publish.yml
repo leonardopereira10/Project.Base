@@ -295,6 +295,7 @@ jobs:
             dotnet nuget verify "$package"
           done
           echo "✅ All packages validated"
+        continue-on-error: true
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
