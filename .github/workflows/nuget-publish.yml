@@ -15,7 +15,7 @@ env:
 
 jobs:
   # ============================================
-  # CI - Build, Test & Coverage
+  # CI - Build, Test & Coverage (Linux)
   # ============================================
   ci-validation:
     runs-on: ubuntu-latest
@@ -37,41 +37,13 @@ jobs:
       - name: Build
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
-      - name: Run Unit Tests with Coverage (OpenCover)
-        run: |
-          dotnet test ${{ env.SOLUTION_FILE }} \
-            --configuration Release \
-            --no-build \
-            --no-restore \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=${{ github.workspace }}/coverage/coverage.opencover.xml 
-
-      - name: Install ReportGenerator
-        run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
-      - name: Create Coverage Report with ReportGenerator
-        run: |
-          COVERAGE_FILE="${{ github.workspace }}/coverage/coverage.opencover.xml"
-          
-          if [ ! -f "$COVERAGE_FILE" ]; then
-            echo "::error::Coverage file not found at $COVERAGE_FILE"
-            ls -la ${{ github.workspace }}/coverage/ || echo "Coverage directory not found"
-            exit 1
-          fi
-          
-          echo "✅ Found coverage file: $COVERAGE_FILE"
-          
-          mkdir -p ${{ github.workspace }}/coverage-report
-          
-          reportgenerator \
-            -reports:"$COVERAGE_FILE" \
-            -targetdir:"${{ github.workspace }}/coverage-report" \
-            -reporttypes:"Cobertura;HtmlSummary" \
-            -verbosity:Error
-          
-          echo "=== Generated Reports ==="
-          ls -lh ${{ github.workspace }}/coverage-report/
+      - name: Run Unit Tests
+        run: >-
+          dotnet test ${{ env.SOLUTION_FILE }}
+          --configuration Release
+          --no-build
+          --no-restore
+          --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload Test Results
         if: always()
@@ -81,24 +53,90 @@ jobs:
           path: '**/*.trx'
           retention-days: 30
 
-      - name: Upload Coverage Report (OpenCover)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-opencover
-          path: ${{ github.workspace }}/coverage/coverage.opencover.xml
-          retention-days: 90
+  # ============================================
+  # SonarQube + Coverage (Windows - Self-Hosted)
+  # ============================================
+  sonarqube-analysis:
+    runs-on: [self-hosted, windows]
+    name: 'SonarQube: Security & Coverage Analysis'
+    environment: nuget
+    needs: ci-validation
+    if: always()
+    env:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'http://localhost:9000' }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Upload Coverage Report (Cobertura)
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Add dotnet tools to PATH
+        run: |
+          $dotnetToolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
+          echo "$dotnetToolsPath" >> $env:GITHUB_PATH
+          $env:PATH = "$dotnetToolsPath;$env:PATH"
+
+      - name: Install SonarScanner CLI
+        run: dotnet tool install --global dotnet-sonarscanner
+        continue-on-error: true
+        
+      - name: Update SonarScanner CLI
+        run: dotnet tool update --global dotnet-sonarscanner
+        continue-on-error: true
+
+      - name: Begin SonarQube Analysis
+        run: |
+          dotnet-sonarscanner begin ^
+            /k:"Project.Base" ^
+            /n:"Project.Base" ^
+            /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" ^
+            /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
+            /d:sonar.tests="Project.Base.Tests" ^
+            /d:sonar.token="${{ env.SONAR_TOKEN }}" ^
+            /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage.opencover.xml"
+        shell: cmd
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build Solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
+      - name: Run Tests with Coverage (OpenCover)
+        run: |
+          dotnet test ${{ env.SOLUTION_FILE }} `
+            --configuration Release `
+            --no-build `
+            --no-restore `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=opencover `
+            /p:CoverletOutput=${{ github.workspace }}/coverage.opencover.xml `
+            --logger "trx;LogFileName=test-results.trx"
+        shell: pwsh
+
+      - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
-          path: ${{ github.workspace }}/coverage-report/Cobertura.xml
-          retention-days: 90
+          name: test-results-sonar
+          path: '**/*.trx'
+          retention-days: 30
+
+      - name: End SonarQube Analysis
+        run: |
+          dotnet-sonarscanner end ^
+            /d:sonar.token="${{ env.SONAR_TOKEN }}"
+        shell: cmd
 
   # ============================================
-  # Gate - Coverage Threshold Check
+  # Gate - Coverage Threshold Check (Linux)
   # ============================================
   coverage-gate:
     runs-on: ubuntu-latest
@@ -109,19 +147,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Coverage Report
-        uses: actions/download-artifact@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
         with:
-          name: coverage-report
-          path: coverage/
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Run Tests with Coverage (Cobertura)
+        run: |
+          dotnet test ${{ env.SOLUTION_FILE }} \
+            --configuration Release \
+            --no-build \
+            --no-restore \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=${{ github.workspace }}/coverage/coverage.cobertura.xml
 
       - name: Check Coverage Threshold
         run: |
-          COVERAGE_FILE="coverage/Cobertura.xml"
+          COVERAGE_FILE="${{ github.workspace }}/coverage/coverage.cobertura.xml"
 
           if [ ! -f "$COVERAGE_FILE" ]; then
             echo "::error::Coverage file not found at $COVERAGE_FILE"
-            ls -la coverage/
             exit 1
           fi
 
@@ -155,82 +201,6 @@ jobs:
             echo "❌ Coverage threshold FAILED (${COVERAGE}% < ${{ env.COVERAGE_THRESHOLD }}%)"
             exit 1
           fi
-
-  # ============================================
-  # SonarQube Analysis (Self-Hosted Runner)
-  # ============================================
-  sonarqube-analysis:
-    runs-on: [self-hosted, windows]
-    name: 'SonarQube: Security & Coverage Analysis'
-    environment: nuget
-    needs: ci-validation
-    if: always()
-    env:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'http://localhost:9000' }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download OpenCover Report
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-opencover
-          path: coverage/
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Add dotnet tools to PATH
-        run: |
-          $dotnetToolsPath = Join-Path $env:USERPROFILE ".dotnet\tools"
-          echo "$dotnetToolsPath" >> $env:GITHUB_PATH
-          $env:PATH = "$dotnetToolsPath;$env:PATH"
-
-      - name: Install SonarScanner CLI
-        run: dotnet tool install --global dotnet-sonarscanner
-        continue-on-error: true
-        
-      - name: Update SonarScanner CLI
-        run: dotnet tool update --global dotnet-sonarscanner
-        continue-on-error: true
-
-      - name: Begin SonarQube Analysis
-        run: |
-          dotnet-sonarscanner begin ^
-            /k:"Project.Base" ^
-            /n:"Project.Base" ^
-            /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" ^
-            /d:sonar.sources="Project.Base.WebApi,Project.Base.Contracts,Project.Base.Domain,Project.Base.Repository" ^
-            /d:sonar.tests="Project.Base.Tests" ^
-            /d:sonar.token="${{ env.SONAR_TOKEN }}" ^
-            /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage/coverage.opencover.xml"
-        shell: cmd
-
-      - name: Restore Dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
-
-      - name: Build Solution
-        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
-
-      - name: Run Tests for SonarQube
-        run: >-
-          dotnet test ${{ env.SOLUTION_FILE }}
-          --configuration Release
-          --no-build
-          --no-restore
-          --logger "trx;LogFileName=test-results.trx"
-
-      - name: End SonarQube Analysis
-        run: |
-          dotnet-sonarscanner end ^
-            /d:sonar.token="${{ env.SONAR_TOKEN }}"
-        shell: cmd
 
   # ============================================
   # CD - NuGet Publish (Tag Only)
