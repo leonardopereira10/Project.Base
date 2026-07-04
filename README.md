@@ -1,3 +1,4 @@
+<img width="1087" height="472" alt="image" src="https://github.com/user-attachments/assets/bfb23f2d-bf51-432c-8202-abbbf20e9c68" />
 # Project.Base
 
 Project.Base is a .NET boilerplate/scaffolding library for building REST API applications with a clean layered architecture. It provides a fully generic framework — abstract controllers, services, repositories, converters, and validators — so you only need to inherit from the base classes and implement a few methods to have a complete CRUD API with validation, pagination, dynamic search, and DTO auto-conversion.
